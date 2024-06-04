@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +25,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,10 +35,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.coventry.ui.CoventryHomeScreen
 import com.example.coventry.R
 import com.example.coventry.ui.CoventryViewModel
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.coventry.ui.CategoriesScreen
+import com.example.coventry.ui.PlaceScreen
+import com.example.coventry.ui.PlacesScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,48 +99,31 @@ fun CoventryApp(
             startDestination = CoventryScreen.Start.name,
             modifier = Modifier.padding(innerPadding),
         ) {
+            composable(route = CoventryScreen.Start.name) {
+                // this will take you to the places in one category
+                CategoriesScreen(
+                    onNextButtonClicked = {
+                        // maybe need to call a view model function
+                        navController.navigate(CoventryScreen.Places.name)
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                )
+            }
+            composable(route = CoventryScreen.Places.name) {
+                val context = LocalContext.current
+                PlacesScreen(
+                    onNextButtonClicked = {}
+                )
+            }
+            composable(route = CoventryScreen.Place.name) {
+                PlaceScreen()
+            }
 
         }
     }
-
-
-
-
-
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopAppBar() { // Might get rid of this and instead have a home page and then you go to the categories page
-    CenterAlignedTopAppBar(
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(64.dp)
-            ) {
-                Image(
-                    modifier = Modifier
-                        //.size(dimensionResource(id = R.dimen.image_size))
-                        //.padding(dimensionResource(id = R.dimen.padding_small)),
-                        .padding(16.dp)
-                        .size(100.dp),
-                    painter = painterResource(R.drawable.lady_godiva),
-                    contentDescription = null
-                )
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.displayLarge
-                )
-
-            }
-        },
-    )
-}
-
-
 
 //Categories, Places, Place
 enum class CoventryScreen(@StringRes val title: Int) {
