@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Coventry</string>
+
+    <string name="coffee_shops">Coffee Shops</string>
+    <string name="parks">Parks</string>
+    <string name="bars">Bars</string>
+    <string name="restaurants">Restaurants</string>
+    <string name="museums">Museums</string>
+    <string name="sports">Sports Teams</string>
+
+    <string name="choose_category">Choose Category</string>
+    <string name="choose_place">Choose Place</string>
+    <string name="shown_place">Shown Place</string>
+    <string name="back_button">Back Button</string>
+
+
+
+    <string name="default_place_name">Sovrano Italian cafe</string>
+    <string name="default_subtitle">Mon-Sun: 09:00am-08:00pm</string>
+    <string name="default_details">With an Italian and European flair Sovrano Caffe &amp; Restaurant combines blends of traditional Mediterranean styles accompanied by new age tastes and combinations. Catering to the hipster who wants more than a scene, a real atmosphere, and that’s exactly what we offer. So when looking for that perfect morning starter, midday escape, or relaxing evening hangout, look no further.</string>
+
+
+
+</resources>
+
