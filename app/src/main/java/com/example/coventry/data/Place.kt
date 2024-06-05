@@ -10,15 +10,15 @@ import com.example.coventry.R
 data class Place(
     val id: Int,
     @StringRes val titleResourceId: Int,
-    @StringRes val openingTimeResourceId: Int,
+    @StringRes val openingTimeResourceId: Int?,
     @DrawableRes val imageResourceId: Int,
     @StringRes val placeDetails: Int
 )
 
 val defaultPlace = Place(
     id = 1,
-    titleResourceId = R.string.default_place_name,
-    openingTimeResourceId = R.string.default_place_name,
+    titleResourceId = R.string.sovrano_place_name,
+    openingTimeResourceId = R.string.sovrano_opening_times,
     imageResourceId = R.drawable.sovrano_front,
-    placeDetails = R.string.default_subtitle
+    placeDetails = R.string.sovrano_details
 )
