@@ -33,7 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coventry.R
 import com.example.coventry.data.Category
-import com.example.coventry.data.categories
+import com.example.coventry.data.DataSource.categories
+//import com.example.coventry.data.categories
 
 @Composable
 fun CategoriesScreen(
@@ -41,8 +42,6 @@ fun CategoriesScreen(
     onNextButtonClicked: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
 
     Scaffold(
 
@@ -72,8 +71,6 @@ fun CategoryItem(
     ) {
     Card(
         modifier = Modifier
-            //.fillMaxSize()
-            //.size(100.dp)
             .padding(start = 5.dp, top = 16.dp, end = 5.dp)
         
     ) {
@@ -127,21 +124,11 @@ fun CategoryItemButton(
 
 }
 
-@Composable
-fun CategoryItemButtonB(
-    onClick: (Category) -> Unit,
-    modifier: Modifier = Modifier
-){
-    Button(onClick = { /*TODO*/ }) {
-
-    }
-
-}
 
 
 
 
-
+// this is the one with a pic of coventry flag might use but not for now
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBarApp() { // Might get rid of this and instead have a home page and then you go to the categories page

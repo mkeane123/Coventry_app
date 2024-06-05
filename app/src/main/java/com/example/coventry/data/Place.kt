@@ -14,3 +14,11 @@ data class Place(
     @DrawableRes val imageResourceId: Int,
     @StringRes val placeDetails: Int
 )
+
+val defaultPlace = Place(
+    id = 1,
+    titleResourceId = R.string.default_place_name,
+    openingTimeResourceId = R.string.default_place_name,
+    imageResourceId = R.drawable.sovrano_front,
+    placeDetails = R.string.default_subtitle
+)

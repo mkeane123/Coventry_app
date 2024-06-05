@@ -39,20 +39,25 @@ import com.example.coventry.R
 import com.example.coventry.ui.CoventryViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.coventry.data.Category
 import com.example.coventry.ui.CategoriesScreen
 import com.example.coventry.ui.PlaceScreen
+import com.example.coventry.ui.PlacesHome
 import com.example.coventry.ui.PlacesScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoventryAppBar(
+    //currentSelectedCat: Category,
     currentScreen: CoventryScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
+        title = {
+            Text(stringResource(currentScreen.title))
+                },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
@@ -85,6 +90,7 @@ fun CoventryApp(
     Scaffold(
         topBar = {
             CoventryAppBar(
+                //currentSelectedCat = viewModel.currentSelCat,
                 canNavigateBack = navController.previousBackStackEntry != null, // if we came from somewhere we can go back
                 navigateUp = { navController.navigateUp() },
                 currentScreen = currentScreen
@@ -113,14 +119,35 @@ fun CoventryApp(
             }
             composable(route = CoventryScreen.Places.name) {
                 val context = LocalContext.current
+                PlacesHome(
+                    uiState = uiState,
+                    onNextButtonClicked = {
+                        viewModel.setCurrentSelectedPlcace(it)
+                        viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)
+                                          },
+                    onDetailScreenBackPressed = {viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)}// maybe make isShowing home page true, this might be best moved elsewhere though
+                )
+                /*
                 PlacesScreen(
                     selectedCategory = uiState.currentSelectedCategory,
-                    onNextButtonClicked = {}
+                    onNextButtonClicked = {},
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                )
+                */
+            }
+            /*
+            composable(route = CoventryScreen.Place.name) {
+                PlaceScreen(
+                    selectedPlace = uiState.currentSelectedPlace,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                    // dont think this ones needs an onNext pressed becuase will use the if to change the screen and use adaptive screeens
                 )
             }
-            composable(route = CoventryScreen.Place.name) {
-                PlaceScreen()
-            }
+            */
 
         }
     }
@@ -139,6 +166,4 @@ enum class CoventryScreen(@StringRes val title: Int) {
 @Preview
 @Composable
 private fun DisplayCard() {
-    //val place: Place = LocalRecommendationsDataProvider.defaultPlace
-    //PlaceDetail(place = place)
 }
