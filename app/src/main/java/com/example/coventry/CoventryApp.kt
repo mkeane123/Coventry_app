@@ -103,7 +103,7 @@ fun CoventryApp(
                 // this will take you to the places in one category
                 CategoriesScreen(
                     onNextButtonClicked = {
-                        // maybe need to call a view model function
+                        viewModel.setCurrentSelectedCategory(it)
                         navController.navigate(CoventryScreen.Places.name)
                     },
                     modifier = Modifier
@@ -114,6 +114,7 @@ fun CoventryApp(
             composable(route = CoventryScreen.Places.name) {
                 val context = LocalContext.current
                 PlacesScreen(
+                    selectedCategory = uiState.currentSelectedCategory,
                     onNextButtonClicked = {}
                 )
             }
@@ -125,7 +126,7 @@ fun CoventryApp(
     }
 }
 
-//Categories, Places, Place
+
 enum class CoventryScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Categories(title = R.string.choose_category),

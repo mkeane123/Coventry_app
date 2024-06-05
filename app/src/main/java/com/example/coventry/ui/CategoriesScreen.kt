@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +38,7 @@ import com.example.coventry.data.categories
 @Composable
 fun CategoriesScreen(
     // might need to pass the categories in here
-    onNextButtonClicked: (Int) -> Unit, // this might not take an int
+    onNextButtonClicked: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -47,9 +48,10 @@ fun CategoriesScreen(
 
     ) { it ->
         LazyColumn(contentPadding = it) {
-            items(categories) {
+            items(categories) { it ->
                 CategoryItem(
                     category = it,
+                    onClick = {onNextButtonClicked(it)},
                     modifier = Modifier.padding(0.dp) // idk where this padding applies to, if anywhere
                 )
             }
@@ -65,6 +67,7 @@ fun CategoriesScreen(
 @Composable
 fun CategoryItem(
     category: Category,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
     ) {
     Card(
@@ -96,7 +99,7 @@ fun CategoryItem(
                 Spacer(modifier = Modifier.weight(1f))
 
                 CategoryItemButton(
-                    onClick = {}
+                    onClick = onClick
                 )
             }
         }
@@ -119,6 +122,17 @@ fun CategoryItemButton(
             contentDescription = null,
             tint = MaterialTheme.colorScheme.secondary
         )
+
+    }
+
+}
+
+@Composable
+fun CategoryItemButtonB(
+    onClick: (Category) -> Unit,
+    modifier: Modifier = Modifier
+){
+    Button(onClick = { /*TODO*/ }) {
 
     }
 
