@@ -28,10 +28,10 @@ class CoventryViewModel : ViewModel() {
 
     }
 
-    fun setCurrentSelectedPlcace(chosenPlace: Place) {
+    fun setCurrentSelectedPlcace(place: Place) {
         _uiState.update { currentState ->
             currentState.copy(
-                currentSelectedPlace = chosenPlace
+                currentSelectedPlace = place
             )
         }
 

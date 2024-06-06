@@ -45,6 +45,7 @@ import com.example.coventry.ui.PlacesHome
 import com.example.coventry.ui.PlacesScreen
 import com.example.coventry.ui.utils.ContentType
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import com.example.coventry.data.Place
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,6 +144,11 @@ fun CoventryApp(
             composable(route = CoventryScreen.Places.name) {
                 val context = LocalContext.current
                 PlacesHome(
+                    onPlaceCardPressed = { place: Place ->
+                        viewModel.setCurrentSelectedPlcace(
+                            place = place
+                        )
+                    },
                     contentType=contentType,
                     uiState = uiState,
                     onNextButtonClicked = {
@@ -156,6 +162,22 @@ fun CoventryApp(
     }
 }
 
+/*
+                        fun updateDetailsScreenStates(email: Email) {
+        _uiState.update {
+            it.copy(
+                currentSelectedEmail = email,
+                isShowingHomepage = false
+            )
+        }
+    }
+
+    onEmailCardPressed = { email: Email ->
+            viewModel.updateDetailsScreenStates(
+                email = email
+            )
+        }
+                         */
 
 enum class CoventryScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
