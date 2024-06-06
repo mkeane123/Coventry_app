@@ -9,7 +9,7 @@
     <string name="sports">Sports Teams</string>
 
     <string name="choose_category">Choose Category</string>
-    <string name="choose_place">Choose A Place</string>
+    <string name="choose_place">Back to categories</string>
     <string name="shown_place">Shown Place</string>
     <string name="back_button">Back Button</string>
 
@@ -54,7 +54,7 @@
     <string name="samoan_joes_details">Aloha and welcome to Samoan Joe\'s Tiki Bar, the tropical haven nestled right in the heart of Coventry! Prepare to embark on an extraordinary journey where paradise comes alive. At Samoan Joe\'s, we\'ve taken the classic tiki bar concept and given it a modern twist that will transport you to a carnival of the senses. As you venture deeper into our jungle-inspired Tiki-Bar, the magic unfolds. Feast your eyes upon our extensive back bar, boasting over 100 varieties of rum, each with its own story to tell. Our talented mixologists have mastered the art of blending these liquid treasures, creating a symphony of flavors that dance upon your palate, ensuring that every sip is a tantalizing experience.</string>
 
 
-    <string name="hickory_place_name">Samoan Joes</string>
+    <string name="hickory_place_name">Hickory\'s Smokehouse</string>
     <string name="hickory_times">Mon–Sun: 12:00–23:00</string>
     <string name="hickory_details">Vibrant modern pub named after a local legend with deals on its international comfort-food menu.</string>
 

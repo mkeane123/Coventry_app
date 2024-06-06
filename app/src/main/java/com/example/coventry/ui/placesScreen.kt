@@ -1,6 +1,7 @@
 package com.example.coventry.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,36 +31,67 @@ import com.example.coventry.R
 import com.example.coventry.data.Category
 import com.example.coventry.data.DataSource.categories
 import com.example.coventry.data.Place
+import com.example.coventry.ui.utils.ContentType
 
 //import com.example.coventry.data.categories
 
 
 @Composable
 fun PlacesHome(
+    contentType: ContentType,
     uiState: CoventryUiState,
     onNextButtonClicked: (Place) -> Unit,
     onDetailScreenBackPressed: () -> Unit,
 ){
-    if (uiState.isShowingHomePage){
-        PlacesScreen(
-            coventryUiState = uiState,
-            selectedCategory = uiState.currentSelectedCategory,
-            onNextButtonClicked = {onNextButtonClicked(it)} ,
-            changeIsShowing = onDetailScreenBackPressed,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.padding_medium))
-        )
-    }
+    if (contentType == ContentType.LIST_AND_DETAIL) {
+        // show list and detail view, two separate screens (need to make new composable)
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            PlacesScreen(
+                coventryUiState = uiState,
+                selectedCategory = uiState.currentSelectedCategory,
+                onNextButtonClicked = {onNextButtonClicked(it)} ,
+                changeIsShowing = onDetailScreenBackPressed,
+                modifier = Modifier
+                    //.fillMaxSize()
+                    .size(100.dp)
+                    .padding(dimensionResource(id = R.dimen.padding_medium))
+            )
+            ShowPlace(
+                coventryUiState = uiState,
+                place = uiState.currentSelectedPlace,
+                onBackPressed = onDetailScreenBackPressed
+            )
+        }
 
-    else {
-        ShowPlace(
-            coventryUiState = uiState,
-            place = uiState.currentSelectedPlace,
-            onBackPressed = onDetailScreenBackPressed
-        )
 
+
+    } else { // show list only view (default composable
+        if (uiState.isShowingHomePage){
+            PlacesScreen(
+                coventryUiState = uiState,
+                selectedCategory = uiState.currentSelectedCategory,
+                onNextButtonClicked = {onNextButtonClicked(it)} ,
+                changeIsShowing = onDetailScreenBackPressed,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(dimensionResource(id = R.dimen.padding_medium))
+            )
+        }
+
+        else {
+            ShowPlace(
+                coventryUiState = uiState,
+                place = uiState.currentSelectedPlace,
+                onBackPressed = onDetailScreenBackPressed
+            )
+
+        }
     }
+    
+    
 }
 
 
@@ -97,10 +129,38 @@ fun ShowPlace(
     place: Place,
     onBackPressed : () -> Unit
 
-){
-    Text(text = stringResource(id = place.titleResourceId))
-    Button(onClick =  onBackPressed) {
+){  Button(
+    onClick = onBackPressed
+) {
+    Text(text = "Back to places")
+}
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(id = place.imageResourceId),
+            contentDescription = stringResource(id = place.titleResourceId),
+            modifier = Modifier.size(500.dp)
+        )
+
+        Text(
+            text = stringResource(id = place.titleResourceId),
+            fontSize = 32.sp
+            )
+
+        if (place.openingTimeResourceId!=null) {
+            Text(
+                text = stringResource(id = place.openingTimeResourceId),
+                fontSize = 32.sp
+                )
+        }
+        else{Text(text = "")}
         
+        Text(
+            text = stringResource(id = place.placeDetails),
+            fontSize = 32.sp
+            )
     }
 
 }

@@ -41,9 +41,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.coventry.data.Category
 import com.example.coventry.ui.CategoriesScreen
-import com.example.coventry.ui.PlaceScreen
 import com.example.coventry.ui.PlacesHome
 import com.example.coventry.ui.PlacesScreen
+import com.example.coventry.ui.utils.ContentType
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,9 +79,30 @@ fun CoventryAppBar(
 
 @Composable
 fun CoventryApp(
+    windowSize: WindowWidthSizeClass,
     viewModel: CoventryViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
+
+    val contentType: ContentType
+    when(windowSize){
+        WindowWidthSizeClass.Compact -> {
+            contentType = ContentType.LIST_ONLY
+        }
+        WindowWidthSizeClass.Medium -> {
+            contentType = ContentType.LIST_ONLY
+        }
+        WindowWidthSizeClass.Expanded -> {
+            contentType = ContentType.LIST_AND_DETAIL
+        }
+        else -> {
+            contentType = ContentType.LIST_ONLY
+        }
+
+    }
+
+
+
     val backStackEntry by navController.currentBackStackEntryAsState()
 
     val currentScreen = CoventryScreen.valueOf(
@@ -106,11 +128,12 @@ fun CoventryApp(
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(route = CoventryScreen.Start.name) {
-                // this will take you to the places in one category
+                // this will take you to the categories screen which is the start
                 CategoriesScreen(
                     onNextButtonClicked = {
                         viewModel.setCurrentSelectedCategory(it)
                         navController.navigate(CoventryScreen.Places.name)
+                        viewModel.setIsShowingHomePage(true)
                     },
                     modifier = Modifier
                         .fillMaxSize()
@@ -120,6 +143,7 @@ fun CoventryApp(
             composable(route = CoventryScreen.Places.name) {
                 val context = LocalContext.current
                 PlacesHome(
+                    contentType=contentType,
                     uiState = uiState,
                     onNextButtonClicked = {
                         viewModel.setCurrentSelectedPlcace(it)
@@ -127,28 +151,7 @@ fun CoventryApp(
                                           },
                     onDetailScreenBackPressed = {viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)}// maybe make isShowing home page true, this might be best moved elsewhere though
                 )
-                /*
-                PlacesScreen(
-                    selectedCategory = uiState.currentSelectedCategory,
-                    onNextButtonClicked = {},
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(dimensionResource(id = R.dimen.padding_medium))
-                )
-                */
             }
-            /*
-            composable(route = CoventryScreen.Place.name) {
-                PlaceScreen(
-                    selectedPlace = uiState.currentSelectedPlace,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(dimensionResource(id = R.dimen.padding_medium))
-                    // dont think this ones needs an onNext pressed becuase will use the if to change the screen and use adaptive screeens
-                )
-            }
-            */
-
         }
     }
 }
@@ -158,7 +161,6 @@ enum class CoventryScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Categories(title = R.string.choose_category),
     Places(title = R.string.choose_place),
-    Place(title = R.string.shown_place)
 }
 
 
