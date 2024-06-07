@@ -1,6 +1,7 @@
 package com.example.coventry.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 
@@ -26,19 +27,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.coventry.CoventryScreen
 import com.example.coventry.R
 import com.example.coventry.data.Category
 import com.example.coventry.data.DataSource.categories
 //import com.example.coventry.data.categories
 
+
+@Composable
+fun CategoriesScreenHome(
+    onNextButtonClicked: (Category) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CategoriesScreen(
+        onNextButtonClicked = onNextButtonClicked,
+        modifier = modifier
+    )
+}
 @Composable
 fun CategoriesScreen(
-    // might need to pass the categories in here
     onNextButtonClicked: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -55,10 +68,7 @@ fun CategoriesScreen(
                 )
             }
         }
-
-
     }
-    
 }
 
 
@@ -72,6 +82,7 @@ fun CategoryItem(
     Card(
         modifier = Modifier
             .padding(start = 5.dp, top = 16.dp, end = 5.dp)
+            .clickable { onClick.invoke() }
         
     ) {
         Column(
@@ -95,69 +106,9 @@ fun CategoryItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                CategoryItemButton(
-                    onClick = onClick
-                )
             }
         }
-        
     }
-
-}
-
-@Composable
-fun CategoryItemButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Icon(
-            imageVector = Icons.Filled.ArrowForward,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary
-        )
-
-    }
-
-}
-
-
-
-
-
-// this is the one with a pic of coventry flag might use but not for now
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBarApp() { // Might get rid of this and instead have a home page and then you go to the categories page
-    CenterAlignedTopAppBar(
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(64.dp)
-            ) {
-                Image(
-                    modifier = Modifier
-                        //.size(dimensionResource(id = R.dimen.image_size))
-                        //.padding(dimensionResource(id = R.dimen.padding_small)),
-                        .padding(16.dp)
-                        .size(100.dp),
-                    painter = painterResource(R.drawable.lady_godiva),
-                    contentDescription = null
-                )
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.displayLarge
-                )
-
-            }
-        },
-    )
 }
 
 @Preview

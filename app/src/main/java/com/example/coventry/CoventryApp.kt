@@ -46,6 +46,7 @@ import com.example.coventry.ui.PlacesScreen
 import com.example.coventry.ui.utils.ContentType
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import com.example.coventry.data.Place
+import com.example.coventry.ui.CategoriesScreenHome
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,6 +131,17 @@ fun CoventryApp(
         ) {
             composable(route = CoventryScreen.Start.name) {
                 // this will take you to the categories screen which is the start
+                CategoriesScreenHome(
+                    onNextButtonClicked = {
+                        viewModel.setCurrentSelectedCategory(it)
+                        navController.navigate(CoventryScreen.Places.name)
+                        viewModel.setIsShowingHomePage(true)
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                )
+                /*
                 CategoriesScreen(
                     onNextButtonClicked = {
                         viewModel.setCurrentSelectedCategory(it)
@@ -140,6 +152,7 @@ fun CoventryApp(
                         .fillMaxSize()
                         .padding(dimensionResource(id = R.dimen.padding_medium))
                 )
+                */
             }
             composable(route = CoventryScreen.Places.name) {
                 val context = LocalContext.current
