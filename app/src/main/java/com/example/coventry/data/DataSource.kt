@@ -128,6 +128,12 @@ object DataSource {
             openingTimeResourceId = null,
             imageResourceId = R.drawable.blaze,
             placeDetails = R.string.blaze_details
+        ),
+        Place(
+            id = 4, titleResourceId = R.string.blaze_name,
+            openingTimeResourceId = null,
+            imageResourceId = R.drawable.blaze,
+            placeDetails = R.string.blaze_details
         )
     )
 

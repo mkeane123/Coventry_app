@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -37,21 +40,53 @@ import com.example.coventry.CoventryScreen
 import com.example.coventry.R
 import com.example.coventry.data.Category
 import com.example.coventry.data.DataSource.categories
+import com.example.coventry.ui.utils.ContentType
+
 //import com.example.coventry.data.categories
 
 
 @Composable
 fun CategoriesScreenHome(
+    contentType: ContentType,
     onNextButtonClicked: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    CategoriesScreen(
-        onNextButtonClicked = onNextButtonClicked,
-        modifier = modifier
-    )
+
+    if (contentType == ContentType.LIST_AND_DETAIL) {
+        CategoriesScreenGrid(
+            onNextButtonClicked = onNextButtonClicked,
+            modifier = modifier
+        )
+    } else {
+        CategoriesScreenOneCol(
+            onNextButtonClicked = onNextButtonClicked,
+            modifier = modifier
+        )
+    }
+
+}
+
+@Composable
+fun CategoriesScreenGrid(
+    onNextButtonClicked: (Category) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2)
+    ) {
+        items(categories) { category ->
+            CategoryItem(
+                category = category,
+                onClick = {onNextButtonClicked(category)},
+                modifier = Modifier.padding(0.dp) // idk where this padding applies to, if anywhere
+            )
+        }
+    }
+
+
 }
 @Composable
-fun CategoriesScreen(
+fun CategoriesScreenOneCol(
     onNextButtonClicked: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {

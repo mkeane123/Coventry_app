@@ -45,7 +45,6 @@ import com.example.coventry.ui.utils.ContentType
 
 @Composable
 fun PlacesHome(
-    onPlaceCardPressed: (Place) -> Unit,
     contentType: ContentType,
     uiState: CoventryUiState,
     onNextButtonClicked: (Place) -> Unit,
@@ -59,32 +58,26 @@ fun PlacesHome(
             //modifier = Modifier.weight(1f)
         ) {
 
-            Column {
-                PlaceListItem(
-                    place = uiState.currentSelectedCategory.listOfPlaces[0],
-                    selected = false,
-                    onCardClick = { onNextButtonClicked(uiState.currentSelectedCategory.listOfPlaces[0]) }
-                )
-                PlaceListItem(
-                    place = uiState.currentSelectedCategory.listOfPlaces[1],
-                    selected = false,
-                    onCardClick = { onNextButtonClicked(uiState.currentSelectedCategory.listOfPlaces[1]) }
-                )
-                PlaceListItem(
-                    place = uiState.currentSelectedCategory.listOfPlaces[2],
-                    selected = false,
-                    onCardClick = { onNextButtonClicked(uiState.currentSelectedCategory.listOfPlaces[2]) }
-                )
-                
-
+            LazyColumn {
+                items(uiState.currentSelectedCategory.listOfPlaces) { place ->
+                    PlaceListItem(
+                        place = place,
+                        selected = false,
+                        onCardClick = {onNextButtonClicked(place)}
+                    )
+                }
             }
+
             Column {
                 //show selected place
                 ShowPlace(
+                    contentType = contentType,
                     isOnlyPlace = false,
                     coventryUiState = uiState,
                     place = uiState.currentSelectedPlace,
-                    onBackPressed = onDetailScreenBackPressed
+                    onBackPressed = onDetailScreenBackPressed,
+                    modifier = Modifier.fillMaxSize().
+                    verticalScroll(rememberScrollState())
                 )
             }
         }
@@ -103,114 +96,18 @@ fun PlacesHome(
 
         else {
             ShowPlace(
+                contentType = contentType,
                 isOnlyPlace = true,
                 coventryUiState = uiState,
                 place = uiState.currentSelectedPlace,
-                onBackPressed = onDetailScreenBackPressed
+                onBackPressed = onDetailScreenBackPressed,
+                modifier = Modifier.fillMaxSize()
             )
 
         }
     }
-
-    /*
-    if (contentType == ContentType.LIST_AND_DETAIL) {
-        // show list and detail view, two separate screens (need to make new composable)
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxSize()
-        ) {
-
-            Column {
-                PlacesScreen(
-                    coventryUiState = uiState,
-                    selectedCategory = uiState.currentSelectedCategory,
-                    onNextButtonClicked = {onNextButtonClicked(it)} ,
-                    changeIsShowing = onDetailScreenBackPressed,
-                    modifier = Modifier
-                        //.fillMaxSize()
-                        //.size(100.dp)
-                        .padding(dimensionResource(id = R.dimen.padding_medium))
-                )
-            }
-
-            Column {
-                ShowPlace(
-                    isOnlyPlace = false,
-                    coventryUiState = uiState,
-                    place = uiState.currentSelectedPlace,
-                    onBackPressed = onDetailScreenBackPressed
-                )
-            }
-
-
-
-
-
-
-        }
-
-
-
-    } else { // show list only view (default composable
-        if (uiState.isShowingHomePage){
-            PlacesScreen(
-                coventryUiState = uiState,
-                selectedCategory = uiState.currentSelectedCategory,
-                onNextButtonClicked = {onNextButtonClicked(it)} ,
-                changeIsShowing = onDetailScreenBackPressed,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(dimensionResource(id = R.dimen.padding_medium))
-            )
-        }
-
-        else {
-            ShowPlace(
-                isOnlyPlace = true,
-                coventryUiState = uiState,
-                place = uiState.currentSelectedPlace,
-                onBackPressed = onDetailScreenBackPressed
-            )
-
-        }
-    }
-    */
-    
-    
 }
 
-/*
-LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(
-                    end = dimensionResource(R.dimen.padding_medium),
-                    top = dimensionResource(R.dimen.padding_medium)
-                ),
-            verticalArrangement = Arrangement.spacedBy(
-                dimensionResource(R.dimen.padding_medium)
-            )
-        ) {
-            items(uiState.currentSelectedCategory.listOfPlaces, key = { email -> email.id }) { place ->
-                PlaceListItem(
-                    place = place,
-                    selected = uiState.currentSelectedPlace.id == place.id,
-                    onCardClick = {
-                        onPlaceCardPressed(place) // onEmailCardPressed: (email) -> Unit
-
-                    },
-                )
-            }
-        }
-        val activity = LocalContext.current as Activity
-
-        ShowPlace(
-            isOnlyPlace = false,
-            coventryUiState = uiState,
-            place = uiState.currentSelectedPlace,
-            onBackPressed = onDetailScreenBackPressed
-        )
- */
 
 @Composable
 fun PlaceListItem(
@@ -245,18 +142,6 @@ fun PlaceListItem(
     }
 }
 
-@Composable
-fun PlacesScreenTwoElectricBugaloo(
-    coventryUiState: CoventryUiState,
-    selectedCategory: Category,
-    onNextButtonClicked:(Place) -> Unit,
-    changeIsShowing: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    
-}
-
-
 
 @Composable
 fun PlacesScreen(
@@ -279,18 +164,17 @@ fun PlacesScreen(
                 )
             }
         }
-
-
     }
-
 }
 
 @Composable
 fun ShowPlace(
+    contentType: ContentType,
     isOnlyPlace:Boolean,
     coventryUiState: CoventryUiState,
     place: Place,
-    onBackPressed : () -> Unit
+    onBackPressed : () -> Unit,
+    modifier: Modifier
 
 ){
     if (isOnlyPlace){
@@ -304,9 +188,7 @@ fun ShowPlace(
         val newPlace = coventryUiState.currentSelectedCategory.listOfPlaces[0]
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+            modifier = modifier
         ) {
             Image(
                 painter = painterResource(id = newPlace.imageResourceId),
@@ -336,9 +218,7 @@ fun ShowPlace(
     } else {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+            modifier = modifier
         ) {
             Image(
                 painter = painterResource(id = place.imageResourceId),
@@ -402,7 +282,6 @@ fun PlacesItem(
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
-
             }
         }
 
