@@ -38,9 +38,17 @@ class CoventryViewModel(
     // Incorporating pytorch model and handling functions for processing data and "sending" to model
     private var model: Module? = null
 
+    /*
     private val _prediction = MutableStateFlow<String>("")
     val prediction: StateFlow<String> = _prediction.asStateFlow()
 
+     */
+    data class PredictionResult(
+        val label: String,
+        val confidence: Float
+    )
+    private val _prediction = MutableStateFlow<PredictionResult?>(null)
+    val prediction: StateFlow<PredictionResult?> = _prediction.asStateFlow()
     private fun assetFilePath(context: Context, assetName: String): String {
         val file = File(context.filesDir, assetName)
 
@@ -93,7 +101,7 @@ class CoventryViewModel(
             Log.d("Predict", "Input indices: ${inputIndices.joinToString()}")
             if (model == null || !_isModelLoaded.value){
                 Log.w("Predict", "Model not yet loaded")
-                _prediction.value = "Model not loaded"
+                //_prediction.value = "Model not loaded"
                 return@launch
             }
             try {
@@ -112,12 +120,12 @@ class CoventryViewModel(
                 val label = classLabels.getOrNull(predictedIndex)?: "Unkown"
                 val confidencePercent = String.format("%.2f", confidence * 100)
 
-                _prediction.value = "Prediction: $label\nConfidence: $confidencePercent%"
-
+                //_prediction.value = "Prediction: $label\nConfidence: $confidencePercent%"
+                _prediction.value = PredictionResult(label = label, confidence = confidence)
                 //_prediction.value = "Predicted Class: $predictedClass"
             } catch (e: Exception) {
                 Log.e("Predict", "Prediction error: ${e.localizedMessage}")
-                _prediction.value = "Error: ${e.localizedMessage}"
+                //_prediction.value = "Error: ${e.localizedMessage}"
             }
 
 

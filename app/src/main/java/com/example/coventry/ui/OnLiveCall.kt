@@ -75,7 +75,8 @@ fun LiveCallDefaultScreen(
 
     val context = LocalContext.current
     val prediction by viewModel.prediction.collectAsState()
-    val confidenceScore by viewModel.con
+    val confidence = prediction?.confidence
+    val label = prediction?.label
 
     var userInput by remember { mutableStateOf("") }
     var isMuted by remember { mutableStateOf(false) }
@@ -155,10 +156,10 @@ fun LiveCallDefaultScreen(
         return padded.map { it.toLong() }.toLongArray()
     }
 
-    var threatColour = when (threatLevel){
-        1 -> Color.Green
-        2 -> Color.Yellow
-        else -> Color.Red
+    val threatColour = when {
+        (prediction?.confidence ?: 0f) >= 0.75f -> Color.Red       // High threat
+        (prediction?.confidence ?: 0f) >= 0.4f -> Color.Yellow     // Medium threat
+        else -> Color.Green                                      // Low threat
     }
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -187,7 +188,13 @@ fun LiveCallDefaultScreen(
                     label = { Text ("Enter text")}
                 )
 
-                Text(text = prediction)
+                if (label != null) {
+                    if (confidence != null) {
+                        Text(text = "Prediction: $label, Confidence: ${String.format("%.2f", confidence * 100)}%")
+                    }
+
+
+                }
 
             }
         }
