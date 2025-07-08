@@ -15,10 +15,3 @@ data class Place(
     @StringRes val placeDetails: Int
 )
 
-val defaultPlace = Place(
-    id = 1,
-    titleResourceId = R.string.sovrano_place_name,
-    openingTimeResourceId = R.string.sovrano_opening_times,
-    imageResourceId = R.drawable.sovrano_front,
-    placeDetails = R.string.sovrano_details
-)

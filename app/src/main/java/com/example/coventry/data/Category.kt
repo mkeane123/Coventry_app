@@ -2,7 +2,6 @@ package com.example.coventry.data
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.example.coventry.R
 
 
 data class Category(

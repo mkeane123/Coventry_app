@@ -1,100 +1,26 @@
 <resources>
-    <string name="app_name">Coventry</string>
-
-    <string name="coffee_shops">Coffee Shops</string>
-    <string name="parks">Parks</string>
-    <string name="bars">Bars</string>
-    <string name="restaurants">Restaurants</string>
-    <string name="museums">Museums</string>
-    <string name="sports">Sports Teams</string>
-
-    <string name="choose_category">Choose Category</string>
-    <string name="choose_place">Back to categories</string>
-    <string name="shown_place">Shown Place</string>
-    <string name="back_button">Back Button</string>
+    <string name="app_name">Scam Detector</string>
 
 
+    <string name="on_live_call_home">Live call</string>
+    <string name="categories">Categories</string>
+    <string name="choose_place">Choose place</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="back_button">Back</string>
 
-    <string name="sovrano_place_name">Sovrano Italian cafe</string>
-    <string name="sovrano_opening_times">Mon-Sun: 09:00am-08:00pm</string>
-    <string name="sovrano_details">With an Italian and European flair Sovrano Caffe &amp; Restaurant combines blends of traditional Mediterranean styles accompanied by new age tastes and combinations. Catering to the hipster who wants more than a scene, a real atmosphere, and that’s exactly what we offer. So when looking for that perfect morning starter, midday escape, or relaxing evening hangout, look no further.</string>
+    <string name="example_scam_dialogue">I am scamming you</string>
+    <string name="previous_calls_screen">Previous calls</string>
+    <string name="previous_texts_screen">Previous Texts</string>
+    <string name="settings">Settings</string>
+    <string name="how_to_use_app">How to use the app</string>
 
-    <string name="gorety_place_name">Gorety Portuguese cafe</string>
-    <string name="gorety_opening_times">Monday, Tuesday, Wednesday, Thursday: 10:30-18:00\nFriday: 10:30-19:00\nSaturday: 10:00-19:00\nSunday: 10:00-17:00</string>
-    <string name="gorety_details">Do you enjoy eating Portuguese traditional food and or Portuguese ciabatta sandwich? If so, Gorety is the place where great cooking and fantastic vibes meet. Our food is nutritious, delicious and affordable, and we welcome diners young and old. Try it yourself. Book your table or stop by today!</string>
+    <string name="example_call_title1">29/06/2025 23:52</string>
+    <string name="example_call_title2">01/07/2025 11:22</string>
+    <string name="example_call_title3">30/06/2025 09:08</string>
 
-    <string name="lucky_lounge_cafe_place_name">Lucky Lounge Cafe</string>
-    <string name="lucky_lounge_cafe_opening_times">Mon-Sun: 08:00-23:00</string>
-    <string name="lucky_lounge_cafe_details">A coffee shop and restaurant</string>
-
-
-
-    <string name="war_memorial_place_name">The Coventry War Memorial Park</string>
-    <string name="war_memorial_details">Roughly 48.5 hectares in size, the park is made up of two areas: the formal garden with the War Memorial, and the sports area with playing fields, golf course, Splash n Play Park and play areas. There is also a 1.6 mile circular footpath around the park. You will find historic landmarks, sculptures and themed gardens around the site, look out for the plaques for more information.</string>
-
-    <string name="coombe_abbey_place_name">Coombe Abbey Park</string>
-    <string name="coombe_abbey_opening_times">Mon–Sun: 05:00–20:00</string>
-    <string name="coombe_abbey_details">For a family trip, a scenic stroll or a quiet place for a picnic, visit Coombe Abbey Park. With 500 acres of beautiful gardens, woodland, lakeside walks, and bird hides, there’s plenty to explore. Designed and landscaped by Capability Brown, Coombe Abbey Park now offers a wide variety of activities to enjoy. From pottery to pond dipping, discover an experience to suit you.</string>
-
-    <string name="allesley_park_place_name">Allesley Park</string>
-    <string name="allesley_park_details">This picturesque historic park nestles between established housing developments offering a unique parkland experience with its rolling landscape and established tree stock. Visitors can marvel at the unspoilt expanse of green space while walking around the park on the tarmaced footpaths, which is also a well used dog walking venue. Families with children can also enjoy using the recently provided equipped and natural play area while also being able to have a picnic on the grass close by.</string>
-
-
-
-    <string name="boom_battle_bar_place_name">Boom Battle Bar</string>
-    <string name="boom_battle_bar_opening_times">Mon–Sun: 12:00–24:00</string>
-    <string name="boom_battle_bar_place_details">We are Boom: Battle Bar. The best place to get socially competitive with your friends! Don’t let anyone else tell you different. We’re the best. All our venues have an electric mix of games, including Axe Throwing, Crazier Golf, Boules, Electric Darts, Shuffleboard, Skee Ball, Pool, Curling, Marble Tarble, Boom Ball, tasty food, drinks and a guaranteed good time. </string>
-
-    <string name="yard_place_name">The Yard</string>
-    <string name="yard_opening_times">Mon–Sun: 10:00–04:00</string>
-    <string name="yard_place_details">Coventry\'s #1 LGBTQ+ Venue. With entertainment every day of the week. From dance classes, to drag shows, to internationally renown DJs. The Yard Coventry has something for everyone, in the heart of Coventry.</string>
-
-    <string name="samoan_joes_place_name">Samoan Joes</string>
-    <string name="samoan_joes_times">Mon–Sun: 17:00–02:00</string>
-    <string name="samoan_joes_details">Aloha and welcome to Samoan Joe\'s Tiki Bar, the tropical haven nestled right in the heart of Coventry! Prepare to embark on an extraordinary journey where paradise comes alive. At Samoan Joe\'s, we\'ve taken the classic tiki bar concept and given it a modern twist that will transport you to a carnival of the senses. As you venture deeper into our jungle-inspired Tiki-Bar, the magic unfolds. Feast your eyes upon our extensive back bar, boasting over 100 varieties of rum, each with its own story to tell. Our talented mixologists have mastered the art of blending these liquid treasures, creating a symphony of flavors that dance upon your palate, ensuring that every sip is a tantalizing experience.</string>
-
-
-    <string name="hickory_place_name">Hickory\'s Smokehouse</string>
-    <string name="hickory_times">Mon–Sun: 12:00–23:00</string>
-    <string name="hickory_details">Vibrant modern pub named after a local legend with deals on its international comfort-food menu.</string>
-
-    <string name="cogs_place_name">Cogs Restaurant</string>
-    <string name="cogs_times">Mon–Sun: 9:30–16:00</string>
-    <string name="cogs_details">Dine at Cogs Restaurant, where every meal is an exploration the finest artisan craft the local area has to offer. Our commitment is simple yet profound – to elevate your dining experience with the unique and authentic flavours of the neighbourhood.</string>
-
-    <string name="farmhouse_place_name">The Farmhouse</string>
-    <string name="farmhouse_times">Mon–Sun: 16:00–23:00</string>
-    <string name="farmhouse_details">Classic British and Indian cuisine in spacious pub setting with grassy garden and kids\' play area.</string>
-
-
-    <string name="transport_museum_place_name">The Coventry Transport Museum</string>
-    <string name="transport_museum_times">Mon–Sun: 16:00–11:00</string>
-    <string name="transport_museum_details">Coventry Transport Museum is a transport museum, located in Coventry city centre, England. It houses the largest collection of British-made road transport held in public ownership. It is located in Coventry because the city was previously the centre of the British car industry.</string>
-
-    <string name="blitz_museum_place_name">The Coventry Blitz Museum</string>
-    <string name="blitz_museum_times">Mon–Sun: 10:00–17:00</string>
-    <string name="blitz_museum_details">Located in the corner of the Cathedral Ruins, the Blitz Museum is a treasure trove of 1940\'s memorabilia and artefacts. Visitors will learn more about the Coventry Blitz on 14th November 1940 in our period school room, and will then travel through a typical house of the time and learn more about life in this era from one of our friendly and knowledgeable volunteers.</string>
-
-    <string name="herbert_name">The Herbert Art Gallery and Museum</string>
-    <string name="herbert_times">Mon–Sun: 16:00–11:00</string>
-    <string name="herbert_details">A gallery for art and stuff</string>
-
-
-
-    <string name="cov_fc_name">Coventry City fc</string>
-    <string name="cov_fc_details">Coventry City Football Club (commonly known as simply Coventry) is a professional football club based in Coventry, West Midlands, England. The club plays in the EFL Championship, the second tier of English football. The club is nicknamed after the sky blue colours that were part of the clubs early years, before making a return in 1962.</string>
-
-    <string name="blaze_name">Coventry Blaze Ice Hockey Team</string>
-    <string name="blaze_details">The Coventry Blaze are a British professional ice hockey team based in Coventry, England. They currently compete in the Elite Ice Hockey League (EIHL) and play their home games at SkyDome Arena.</string>
-
-    <string name="cov_rubgy_name">Coventry Rugby Club</string>
-    <string name="cov_rubgy_details">Coventry Rugby Football Club is a professional rugby union club based in Coventry, England. The club enjoyed great success during the 1960s and 70s, with many players representing their countries. Coventry\'s home ground is the Butts Park Arena, which opened in 2004.</string>
-
-
-
-
-
-
+    <string name="individualPastCallScreen">Past call</string>
+    <string name="individualPastTextScreen">Past text</string>
+    <string name="on_boarding_screen">Onboarding</string>
 
 
 </resources>

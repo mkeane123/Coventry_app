@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coventry.R
 import com.example.coventry.data.Category
-import com.example.coventry.data.DataSource.categories
+
 import com.example.coventry.data.Place
 import com.example.coventry.ui.utils.ContentType
 
@@ -50,6 +50,7 @@ fun PlacesHome(
     onNextButtonClicked: (Place) -> Unit,
     onDetailScreenBackPressed: () -> Unit,
 ){
+    /*
 
     if (contentType == ContentType.LIST_AND_DETAIL) {
         Row(
@@ -106,6 +107,8 @@ fun PlacesHome(
 
         }
     }
+
+     */
 }
 
 
@@ -167,6 +170,7 @@ fun PlacesScreen(
     }
 }
 
+/*
 @Composable
 fun ShowPlace(
     contentType: ContentType,
@@ -248,6 +252,8 @@ fun ShowPlace(
 
 }
 
+
+ */
 @Composable
 fun PlacesItem(
     uiState: CoventryUiState,
