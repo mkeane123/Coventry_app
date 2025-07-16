@@ -12,8 +12,11 @@ import java.time.ZonedDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 data class CoventryUiState  constructor(
+    val isLoading: Boolean = true,
+    val isFirstLaunch: Boolean = true,
+    val hasPermissions: Boolean = false,
     var onCall: Boolean = true,
-    var isShowingHomePage: Boolean = true,
+    var isShowingHomePage: Boolean = false,
     var currentSelectedPastCall: PreviousCall = testPreviousCall,
     var currentSelectedPastText: PreviousText = testPreviousText
     //var currentSelectedCategory: CategoryOfPlace = categoriesOfPlaces[0]

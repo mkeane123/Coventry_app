@@ -120,45 +120,48 @@ fun CoventryApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
 
     val currentScreen = CoventryScreen.valueOf(
-        backStackEntry?.destination?.route ?: CoventryScreen.Start.name
+        backStackEntry?.destination?.route ?: CoventryScreen.OnBoardingScreen.name
     )
+
+
 
     // check if first launch and permissions and load screen accordingly
     val isFirstLaunch by viewModel.isFirstLaunch.collectAsState()
+    val isDataLoaded by viewModel.isDataLoaded.collectAsState()
     //val isFirstLaunch = viewModel.isFirstLaunch.collectAsState()
     val hasPermissions by viewModel.hasPermissions.collectAsState()
 
     val uiState by viewModel.uiState.collectAsState()
 
-    val onCall = uiState.onCall
 
-    //var startDestination: String? = null
+    if (uiState.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+            ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    var startDestination = "poopy"
+
+    if (uiState.isFirstLaunch) {
+        startDestination = CoventryScreen.OnBoardingScreen.name
+    } else if (!uiState.hasPermissions) {
+        startDestination = CoventryScreen.Permissions.name
+    } else {startDestination = CoventryScreen.HomeScreen.name}
+
+
+
 
     /*
-    when (isFirstLaunch.value) {
-        null -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
-        true -> {
-            startDestination = CoventryScreen.OnBoardingScreen.name
-        }
-        false -> {
-            if (hasPermissions) startDestination = CoventryScreen.HomeScreen.name else CoventryScreen.Start.name
-
-        }
+    val startDestination = when {
+        uiState.isFirstLaunch -> CoventryScreen.OnBoardingScreen.name
+        uiState.hasPermissions -> CoventryScreen.HomeScreen.name
+        else -> CoventryScreen.Start.name // Permissions screen
     }
 
      */
-
-
-    val startDestination = if (!isFirstLaunch && hasPermissions) {
-            CoventryScreen.OnBoardingScreen.name
-
-    } else {
-        CoventryScreen.Start.name // take users to permissions screen
-    }
 
 
 
@@ -173,145 +176,145 @@ fun CoventryApp(
         }
 
     ){ innerPadding ->
-        val uiState by viewModel.uiState.collectAsState()
 
-        if (startDestination != null) {
-            NavHost(
-                navController = navController,
-                startDestination = startDestination,
-                modifier = Modifier.padding(innerPadding),
-            ) {
-                composable(route = CoventryScreen.Start.name) {
-                    // this will take you to the categories screen which is the start
-                    PermissionsScreenHomeComposable(
-                        contentType = contentType,
-                        onNextButtonClicked = {
 
-                            viewModel.updatePermissionsGranted(true)
-                            viewModel.updateFirstLaunchDone()
-                            navController.navigate(CoventryScreen.Places.name) {
-                                popUpTo(CoventryScreen.Start.name) { inclusive = true}
-                            }
-                            viewModel.setIsShowingHomePage(true)
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(dimensionResource(id = R.dimen.padding_medium)),
-                        viewModel = viewModel
-                    )
 
-                }
-                composable(route = CoventryScreen.Places.name) {
-                    val context = LocalContext.current
-                    PlacesHome(
-                        contentType=contentType,
-                        uiState = uiState,
-                        onNextButtonClicked = {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding),
+        ) {
+            composable(route = CoventryScreen.Permissions.name) {
+                // this will take you to the categories screen which is the start
+                PermissionsScreenHomeComposable(
+                    contentType = contentType,
+                    onNextButtonClicked = {
 
-                            viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)
-                        },
-                        onDetailScreenBackPressed = {viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)}// maybe make isShowing home page true, this might be best moved elsewhere though
-                    )
-                }
-                composable(route = CoventryScreen.OnLiveCall.name) {
-                    val context = LocalContext.current
-                    OnLiveCallHome(
-                        onReportButtonClicked = {viewModel.reportCall()},
-                        onBlockButtonClicked = {viewModel.blockCaller()},
-                        onEndCallButtonClicked = {viewModel.endCall()},
-                        viewModel = viewModel,
-                        navController = navController
-                    )
-                }
-                composable(route = CoventryScreen.HomeScreen.name) {
-                    val context = LocalContext.current
-                    HomeScreen(
-                        navController = navController,
-                        viewModel = viewModel
-                    )
-                }
-
-                composable(route = CoventryScreen.PreviousTextsScreen.name) {
-                    PastTextsHome(
-                        contentType = ContentType.LIST_ONLY,
-                        onIndividualCardPressed = {},
-                        viewModel = viewModel,
-                        navController = navController
-                    )
-
-                }
-
-                composable(route = CoventryScreen.PreviousCallsScreen.name) {
-                    PastCallsHome(
-                        contentType = ContentType.LIST_ONLY,
-                        onIndividualCardPressed = {},
-                        viewModel = viewModel,
-                        navController = navController
-                    )
-
-                }
-
-                composable(route = CoventryScreen.SettingsScreen.name) {
-                    SettingsHomeScreen(
-                        onNextButtonClicked = {},
-                        viewModel = viewModel,
-                        navController = navController
-                    )
-
-                }
-
-                composable(route = CoventryScreen.HowToUseAppScreen.name) {
-                    HowToUseAppHomeScreen(
-                        viewModel = viewModel,
-                        navController = navController
-                    )
-
-                }
-
-                composable(route = CoventryScreen.IndividualPastCallScreen.name) {
-                    IndividualPreviousCallHome(
-                        onReportButtonClicked = {viewModel.reportCall()},
-                        onBlockButtonClicked = {viewModel.blockCaller()},
-                        viewModel = viewModel,
-                        navController = navController,
-                        previousCall = uiState.currentSelectedPastCall
-                    )
-
-                }
-
-                composable(route = CoventryScreen.IndividualPastTextScreen.name) {
-                    IndividualPreviousTextHome(
-                        onReportButtonClicked = {viewModel.reportCall()},
-                        onBlockButtonClicked = {viewModel.blockCaller()},
-                        viewModel = viewModel,
-                        navController = navController,
-                        previousText = uiState.currentSelectedPastText
-                    )
-
-                }
-
-                composable(route = CoventryScreen.OnBoardingScreen.name) {
-                    OnBoardingScreenHome(
-                        navController = navController,
-                        viewModel = viewModel,
-                        onGetStarted = {
-                            viewModel.setFirstLaunchDone()
-                            viewModel.updateFirstLaunchDone()
-                            navController.navigate(CoventryScreen.HomeScreen.name) {
-                                popUpTo(0) {inclusive = true}
-                                launchSingleTop = true
-                            }
+                        viewModel.updatePermissionsGranted(true)
+                        viewModel.updateFirstLaunchDone()
+                        navController.navigate(CoventryScreen.HomeScreen.name) {
+                            popUpTo(CoventryScreen.Permissions.name) { inclusive = true}
                         }
-                    )
+                        viewModel.setIsShowingHomePage(true)
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(dimensionResource(id = R.dimen.padding_medium)),
+                    viewModel = viewModel
+                )
 
-                }
+            }
+            composable(route = CoventryScreen.Places.name) {
+                val context = LocalContext.current
+                PlacesHome(
+                    contentType=contentType,
+                    uiState = uiState,
+                    onNextButtonClicked = {
+
+                        viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)
+                    },
+                    onDetailScreenBackPressed = {viewModel.setIsShowingHomePage(!uiState.isShowingHomePage)}// maybe make isShowing home page true, this might be best moved elsewhere though
+                )
+            }
+            composable(route = CoventryScreen.OnLiveCall.name) {
+                val context = LocalContext.current
+                OnLiveCallHome(
+                    onReportButtonClicked = {viewModel.reportCall()},
+                    onBlockButtonClicked = {viewModel.blockCaller()},
+                    onEndCallButtonClicked = {viewModel.endCall()},
+                    viewModel = viewModel,
+                    navController = navController
+                )
+            }
+            composable(route = CoventryScreen.HomeScreen.name) {
+                val context = LocalContext.current
+                HomeScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
+            }
+
+            composable(route = CoventryScreen.PreviousTextsScreen.name) {
+                PastTextsHome(
+                    contentType = ContentType.LIST_ONLY,
+                    onIndividualCardPressed = {},
+                    viewModel = viewModel,
+                    navController = navController
+                )
+
+            }
+
+            composable(route = CoventryScreen.PreviousCallsScreen.name) {
+                PastCallsHome(
+                    contentType = ContentType.LIST_ONLY,
+                    onIndividualCardPressed = {},
+                    viewModel = viewModel,
+                    navController = navController
+                )
+
+            }
+
+            composable(route = CoventryScreen.SettingsScreen.name) {
+                SettingsHomeScreen(
+                    onNextButtonClicked = {},
+                    viewModel = viewModel,
+                    navController = navController
+                )
+
+            }
+
+            composable(route = CoventryScreen.HowToUseAppScreen.name) {
+                HowToUseAppHomeScreen(
+                    viewModel = viewModel,
+                    navController = navController
+                )
+
+            }
+
+            composable(route = CoventryScreen.IndividualPastCallScreen.name) {
+                IndividualPreviousCallHome(
+                    onReportButtonClicked = {viewModel.reportCall()},
+                    onBlockButtonClicked = {viewModel.blockCaller()},
+                    viewModel = viewModel,
+                    navController = navController,
+                    previousCall = uiState.currentSelectedPastCall
+                )
+
+            }
+
+            composable(route = CoventryScreen.IndividualPastTextScreen.name) {
+                IndividualPreviousTextHome(
+                    onReportButtonClicked = {viewModel.reportCall()},
+                    onBlockButtonClicked = {viewModel.blockCaller()},
+                    viewModel = viewModel,
+                    navController = navController,
+                    previousText = uiState.currentSelectedPastText
+                )
+
+            }
+
+            composable(route = CoventryScreen.OnBoardingScreen.name) {
+                OnBoardingScreenHome(
+                    navController = navController,
+                    viewModel = viewModel,
+                    onGetStarted = {
+                        viewModel.setFirstLaunchDone()
+                        viewModel.updateFirstLaunchDone()
+                        navController.navigate(CoventryScreen.HomeScreen.name) {
+                            popUpTo(0) {inclusive = true}
+                            launchSingleTop = true
+                        }
+                    }
+                )
+
             }
         }
+
     }
 }
 
 enum class CoventryScreen(@StringRes val title: Int) {
-    Start(title = R.string.app_name),
+    Permissions(title = R.string.app_name),
     Categories(title = R.string.categories),
     Places(title = R.string.choose_place),
     OnLiveCall(title = R.string.on_live_call_home),

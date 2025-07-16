@@ -68,6 +68,8 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.6.1") // for Pager
     implementation("androidx.compose.material3:material3:1.2.1")   // Material3
     implementation("androidx.compose.ui:ui:1.6.1")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+
 
     testImplementation("junit:junit:4.13.2")
 
@@ -79,6 +81,12 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion("1.9.0")
+            }
+        }
+    }
 }
 

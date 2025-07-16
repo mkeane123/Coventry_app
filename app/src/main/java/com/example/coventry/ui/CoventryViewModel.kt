@@ -28,9 +28,15 @@ import java.io.File
 import java.io.FileOutputStream
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 class CoventryViewModel(
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
+
+
+
+    private val _isDataLoaded = MutableStateFlow(false)
+    val isDataLoaded: StateFlow<Boolean> = _isDataLoaded
 
     private val _isModelLoaded = MutableStateFlow(false)
     val isModelLoaded: StateFlow<Boolean> = _isModelLoaded
@@ -193,11 +199,14 @@ class CoventryViewModel(
     val hasPermissions: StateFlow<Boolean> = _hasPermissions
 
     fun updateFirstLaunchDone(){
-        _isFirstLaunch.value = false
+        viewModelScope.launch {
+            dataStoreManager.setFirstLaunchDone()
+            _uiState.update { it.copy(isFirstLaunch = false) }
+        }
     }
 
     fun updatePermissionsGranted(granted: Boolean) {
-        _hasPermissions.value = granted
+        _uiState.update { it.copy(hasPermissions = granted) }
     }
 
     // App UI state
@@ -218,12 +227,12 @@ class CoventryViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setIsShowingHomePage(isShowing: Boolean) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isShowingHomePage = isShowing
-            )
-        }
+        _uiState.update { it.copy(isShowingHomePage = isShowing) }
 
+    }
+
+    fun setOnCall(onCall: Boolean) {
+        _uiState.update { it.copy(onCall = onCall) }
     }
 
     fun reportCall() {
@@ -249,8 +258,8 @@ class CoventryViewModel(
     init {
         // Read the persisted first launch state from DataStore
         viewModelScope.launch {
-            dataStoreManager.isFirstLaunch.collect {
-                firstLaunch -> _isFirstLaunch.value = firstLaunch
+            dataStoreManager.isFirstLaunch.collect {firstLaunch ->
+                _uiState.update { it.copy(isFirstLaunch = firstLaunch, isLoading = false) }
             }
         }
     }
@@ -263,68 +272,3 @@ class CoventryViewModel(
 
 
 }
-
-/*
-class CoventryViewModel : ViewModel() {
-
-    // handle first launch and getting permissions
-    private val _isFirstLaunch = MutableStateFlow(true) // default that it is the first launch
-    val isFirstLaunch: StateFlow<Boolean> = _isFirstLaunch
-
-    private val _hasPermissions = MutableStateFlow(false) // default that we don't have permissions
-    val hasPermissions: StateFlow<Boolean> = _hasPermissions
-
-    fun updateFirstLaunchDone(){
-        _isFirstLaunch.value = false
-    }
-
-    fun updatePermissionsGranted(granted: Boolean) {
-        _hasPermissions.value = granted
-    }
-
-    // App UI state
-    private val _uiState = MutableStateFlow(CoventryUiState())
-    val uiState: StateFlow<CoventryUiState> = _uiState.asStateFlow()
-
-    fun setCurrentSelectedCategory(chosenCat: Category) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                currentSelectedCategory = chosenCat
-            )
-        }
-
-    }
-
-    fun setCurrentSelectedPlcace(place: Place) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                currentSelectedPlace = place
-            )
-        }
-
-    }
-
-    fun setIsShowingHomePage(isShowing: Boolean) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isShowingHomePage = isShowing
-            )
-        }
-
-    }
-
-
-
-    private fun resetApp() {
-        _uiState.value = CoventryUiState()
-    }
-
-    init {
-        //resetApp()
-    }
-
-
-
-}
-
- */

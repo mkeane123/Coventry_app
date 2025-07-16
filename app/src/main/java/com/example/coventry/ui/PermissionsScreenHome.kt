@@ -1,10 +1,13 @@
 package com.example.coventry.ui
 
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
@@ -17,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +45,7 @@ import com.example.coventry.ui.utils.ContentType
 //import com.example.coventry.data.categories
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PermissionsScreenHomeComposable(
     contentType: ContentType,
@@ -51,6 +56,7 @@ fun PermissionsScreenHomeComposable(
     // handle permisisons
     val context = LocalContext.current
     val hasPermission by viewModel.hasPermissions.collectAsState()
+    val isFirstLaunch = viewModel.isFirstLaunch.collectAsState().value
 
     val permissions = arrayOf(
         android.Manifest.permission.RECORD_AUDIO,
@@ -71,38 +77,34 @@ fun PermissionsScreenHomeComposable(
         val allGranted = permissions.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
-        if (allGranted) {
-            viewModel.updatePermissionsGranted(true)
-            viewModel.updateFirstLaunchDone()
-        } else {
+        viewModel.updatePermissionsGranted(allGranted)
+
+        if (!allGranted && isFirstLaunch){
             permissionLauncher.launch(permissions)
+        } else if (allGranted) {
+            viewModel.updateFirstLaunchDone()
         }
-    }
-/* // In here is where actually get the permissions
-    if (viewModel.hasPermissions.collectAsState().value) {
-        // You might pre-fill with a default category or let the user select
-        onNextButtonClicked(Category("Default", "default")) // Replace this appropriately
-    } else {
-        // Display UI explaining the need for permissions
-        Text(
-            "Permissions are required to continue.",
-            modifier = modifier.padding(16.dp)
-        )
+
     }
 
- */
-
-    if (hasPermission) { // if this is true
-        TestDisplay("Have permissions")
-    } else {
+    if (hasPermission){
+        TestDisplay("Microphone permission granted!")
+    }else{
         Column(
-            modifier = modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text("This app needs microphone access to work")
+            Text("This app needs microphone access to work properly.")
+            Spacer(modifier = Modifier.size(24.dp))
+            Button(onClick = {permissionLauncher.launch(permissions)}) {
+                Text(text = "Grant Microphone Permission")
+            }
         }
-
     }
+
 
 
 }

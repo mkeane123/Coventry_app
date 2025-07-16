@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 
+
 class DataStoreManager (private val context: Context) {
     companion object {
         private val FIRST_LAUNCH_KEY = booleanPreferencesKey("first_launch")
