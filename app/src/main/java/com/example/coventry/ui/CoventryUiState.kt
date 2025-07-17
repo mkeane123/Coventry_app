@@ -2,10 +2,11 @@ package com.example.coventry.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.room.PrimaryKey
 import com.example.coventry.R
 
 import com.example.coventry.data.PreviousCall
-import com.example.coventry.data.PreviousText
+import com.example.coventry.data.model.PreviousText
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -23,13 +24,15 @@ data class CoventryUiState  constructor(
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
+
+
 val testPreviousText: PreviousText = PreviousText(
-    threatLevel = 1,
-    titleResourceId = R.string.example_call_title1,
-    content = "Give me your bank account details",
-    callingNumber = "07728334147",
-    timeOfText = ZonedDateTime.now()
+    id = 1,
+    sender = "07865438765",
+    body = "This is test text message body",
+    timestamp = 12
 )
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 val placeholderTime: ZonedDateTime = ZonedDateTime.of(

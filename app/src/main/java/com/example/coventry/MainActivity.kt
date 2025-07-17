@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.coventry.data.DataStoreManager
@@ -35,8 +36,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val dataStoreManager = DataStoreManager(applicationContext)
-
-        val factory = CoventryViewModelFactory(dataStoreManager)
+        val context = applicationContext
+        val factory = CoventryViewModelFactory(context = context, dataStoreManager = dataStoreManager)
 
         val viewModel = ViewModelProvider(this, factory)
             .get(CoventryViewModel::class.java)

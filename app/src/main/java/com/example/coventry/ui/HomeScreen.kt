@@ -1,6 +1,7 @@
 package com.example.coventry.ui
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,8 @@ fun HomeScreen(
 ) {
     var isSideMenuOpen by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsState()
+
+    Log.d("Home Screen", "isFirstLaunch: ${uiState.isFirstLaunch}")
 
     val onCall = uiState.onCall
 

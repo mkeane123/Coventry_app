@@ -1,5 +1,7 @@
 package com.example.coventry.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.compose.animation.*
@@ -22,6 +24,7 @@ import com.example.coventry.CoventryScreen
 import kotlinx.coroutines.launch
 
 // get permissions in this onboarding screen
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OnBoardingScreenHome(
     navController: NavController,
@@ -38,6 +41,7 @@ fun OnBoardingScreenHome(
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(
@@ -142,7 +146,7 @@ fun OnboardingScreen(
                 )
             }
         }
-
+        val uiState by viewModel.uiState.collectAsState()
         if(pagerState.currentPage == pages.size - 1){
             Button(
                 onClick = onGetStarted,

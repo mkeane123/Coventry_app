@@ -1,8 +1,10 @@
 package com.example.coventry.ui
 
 
+import android.os.Build
 import android.util.Log
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OnLiveCallHome(
     onReportButtonClicked: (Unit) -> Unit,
@@ -63,6 +66,7 @@ fun OnLiveCallHome(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LiveCallDefaultScreen(
     threatLevel: Int,
@@ -96,65 +100,10 @@ fun LiveCallDefaultScreen(
     // Function for cleaning text, it is the same as the python code that was used for the training data just converted to kotlin
     // THIS MIGHT GO HERE, BUT IT MAYBE SHOULD BE SOMEWHERE ELSE, OR CHANGE THE FUNCTION OF IT MAYBE
 
-    fun cleanText(text: String): String {
-        var cleaned = text
-
-        // Named Entity placeholders (very basic examples)
-        cleaned = cleaned.replace(Regex("(?i)\\b(john|mike|susan|emily)\\b"), "[PERSON]")
-        cleaned = cleaned.replace(Regex("\\b\\d{1,2}/\\d{1,2}/\\d{2,4}\\b"), "[DATE]")
-
-        // Lowercase
-        cleaned = cleaned.lowercase()
-
-        // Remove transcript labels
-        cleaned = cleaned.replace("suspect:", "")
-            .replace("innocent:", "")
-            .replace("person a:", "")
-            .replace("person b:", "")
-
-        // Substitution patterns
-        val substitutions = listOf(
-            Regex("\\b(verify|confirm|urgent|immediate|asap|act now|time-sensitive|blocked|block|activate)\\b") to "[SUSPICIOUS_TERM]",
-            Regex("this is not a scam") to "[SCAM]",
-            Regex("\\b(urgent|immediately|asap|act now|time-sensitive)\\b") to "[URGENT_TERM]",
-            Regex("\\b(verify your |confirm your )\\b") to "[VERIFY_REQUEST]",
-            Regex("\\b(wire transfer|bank transfer|send money|payment request|payment|deposit|routing number|funds transfer|money transfer|send funds)\\b") to "[FINANCIAL_ACTION]",
-            Regex("\\b(credit card|debit card|bank account|account number|account details|card number|bank details)\\b") to "[FINANCIAL_INFO]",
-            Regex("\\b(account (will be )?suspended|legal action|you will be charged|charged|report to authorities|court order|arrest warrant|charge)\\b") to "[THREAT]",
-            Regex("\\b(have won a prize|have won a competition|win a|prize|claim|lucky draw|free entry)\\b") to "[PRIZE_WIN]",
-            Regex("\\b(name|address|email|number)\\b") to "[PERSONAL_INFORMATION]",
-            Regex("https?://(?:www\\.)?\\S+|www\\.\\S+") to "<URL>"
-        )
-
-        for ((pattern, replacement) in substitutions) {
-            cleaned = pattern.replace(cleaned, replacement)
-        }
-
-        // Remove special characters (except alphanumerics, space, !, ?)
-        cleaned = Regex("[^\\w\\s!?]").replace(cleaned, "")
-
-        return cleaned.trim()
-    }
 
     val vocab = viewModel.getVocab()
 
 
-    fun encodeTokens(tokens: List<String>, vocab: Map<String, Int>, maxLen: Int = 45): LongArray {
-        val padIndex = vocab["<PAD>"] ?: 0
-        val unkIndex = vocab["<UNK>"] ?: 1
-
-        val encoded = tokens.map{ token ->
-            vocab[token] ?: unkIndex
-        }
-
-        val padded = if (encoded.size >= maxLen) {
-            encoded.take(maxLen)
-        } else {
-            encoded + List(maxLen - encoded.size) { padIndex}
-        }
-
-        return padded.map { it.toLong() }.toLongArray()
-    }
 
     val threatColour = when {
         (prediction?.confidence ?: 0f) >= 0.75f -> Color.Red       // High threat

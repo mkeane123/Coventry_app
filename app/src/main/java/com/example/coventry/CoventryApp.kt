@@ -2,6 +2,7 @@ package com.example.coventry
 
 //import androidx.compose.foundation.layout.FlowRowScopeInstance.weight
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -47,6 +48,7 @@ import com.example.coventry.ui.PlacesHome
 import com.example.coventry.ui.PlacesScreen
 import com.example.coventry.ui.utils.ContentType
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import com.example.coventry.data.Place
 import com.example.coventry.data.PreviousCall
 import com.example.coventry.ui.HomeScreen
@@ -126,12 +128,13 @@ fun CoventryApp(
 
 
     // check if first launch and permissions and load screen accordingly
-    val isFirstLaunch by viewModel.isFirstLaunch.collectAsState()
+    //val isFirstLaunch by viewModel.isFirstLaunch.collectAsState()
     val isDataLoaded by viewModel.isDataLoaded.collectAsState()
-    //val isFirstLaunch = viewModel.isFirstLaunch.collectAsState()
-    val hasPermissions by viewModel.hasPermissions.collectAsState()
+
+    //val hasPermissions by viewModel.hasPermissions.collectAsState()
 
     val uiState by viewModel.uiState.collectAsState()
+
 
 
     if (uiState.isLoading) {
@@ -181,9 +184,44 @@ fun CoventryApp(
 
         NavHost(
             navController = navController,
-            startDestination = startDestination,
+            startDestination = CoventryScreen.Splash.name,
             modifier = Modifier.padding(innerPadding),
         ) {
+            composable(route = CoventryScreen.Splash.name) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+                Log.d("Start destination", "isFirstLaunch: ${uiState.isFirstLaunch}")
+                Log.d("Start destination", "hasPermissions: ${uiState.hasPermissions}")
+                LaunchedEffect(uiState.isFirstLaunch, uiState.hasPermissions, uiState.isLoading) {
+                    if (!uiState.isLoading){
+                        when {
+
+                            uiState.isFirstLaunch -> {
+                                navController.navigate(CoventryScreen.OnBoardingScreen.name){
+                                    popUpTo(CoventryScreen.Splash.name) {inclusive = true}
+                                }
+                            }
+                            !uiState.hasPermissions -> {
+                                navController.navigate(CoventryScreen.Permissions.name){
+                                    popUpTo(CoventryScreen.Splash.name) {inclusive = true}
+                                }
+                            }
+                            else -> {
+                                navController.navigate(CoventryScreen.HomeScreen.name){
+                                    popUpTo(CoventryScreen.Splash.name) {inclusive = true}
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+
             composable(route = CoventryScreen.Permissions.name) {
                 // this will take you to the categories screen which is the start
                 PermissionsScreenHomeComposable(
@@ -325,7 +363,8 @@ enum class CoventryScreen(@StringRes val title: Int) {
     HowToUseAppScreen(title = R.string.how_to_use_app),
     IndividualPastCallScreen(title = R.string.individualPastCallScreen),
     IndividualPastTextScreen(title = R.string.individualPastTextScreen),
-    OnBoardingScreen(title = R.string.on_boarding_screen)
+    OnBoardingScreen(title = R.string.on_boarding_screen),
+    Splash(title = R.string.app_name)
 }
 
 @Preview

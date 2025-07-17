@@ -2,9 +2,7 @@ package com.example.coventry.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coventry.data.Category
 import com.example.coventry.data.DataStoreManager
-import com.example.coventry.data.Place
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,28 +10,47 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-import android.app.Application
 import android.content.Context
 import android.content.res.AssetManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.coventry.data.PreviousCall
-import com.example.coventry.data.PreviousText
+import com.example.coventry.data.local.AppDatabase
+import com.example.coventry.data.model.PreviousText
+import com.example.coventry.data.repository.PreviousTextRepository
+import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import org.pytorch.IValue
 import org.pytorch.Module
 import org.pytorch.Tensor
 import java.io.File
 import java.io.FileOutputStream
+import java.sql.Timestamp
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 class CoventryViewModel(
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    private val textRepository: PreviousTextRepository
 ) : ViewModel() {
 
 
+    val allTexts: Flow<List<PreviousText>> = textRepository.getAllTexts()
+
+    fun saveIncomingText(sender: String, message: String, timestamp: Long){
+        val text = PreviousText(
+            sender = sender,
+            body = message,
+            timestamp = timestamp
+        )
+        viewModelScope.launch { textRepository.insert(text) }
+    }
+    fun insertText(text: PreviousText){
+        viewModelScope.launch {
+            textRepository.insert(text)
+        }
+    }
 
     private val _isDataLoaded = MutableStateFlow(false)
     val isDataLoaded: StateFlow<Boolean> = _isDataLoaded
@@ -201,19 +218,23 @@ class CoventryViewModel(
     fun updateFirstLaunchDone(){
         viewModelScope.launch {
             dataStoreManager.setFirstLaunchDone()
-            _uiState.update { it.copy(isFirstLaunch = false) }
+            //_uiState.update { it.copy(isFirstLaunch = false) }
         }
     }
 
     fun updatePermissionsGranted(granted: Boolean) {
-        _uiState.update { it.copy(hasPermissions = granted) }
+        viewModelScope.launch {
+            dataStoreManager.setPermissionsGranted(granted)
+        }
+        //_hasPermissions.value = granted
+        //_uiState.update { it.copy(hasPermissions = granted) }
     }
 
     // App UI state
     @RequiresApi(Build.VERSION_CODES.O)
-    private var _uiState = MutableStateFlow(CoventryUiState())
+    private val _uiState = MutableStateFlow(CoventryUiState())
     @RequiresApi(Build.VERSION_CODES.O)
-    var uiState: StateFlow<CoventryUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<CoventryUiState> = _uiState//.asStateFlow()
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateCurrentSelctedPreviousCall(previousCall: PreviousCall) {
@@ -258,13 +279,25 @@ class CoventryViewModel(
     init {
         // Read the persisted first launch state from DataStore
         viewModelScope.launch {
-            dataStoreManager.isFirstLaunch.collect {firstLaunch ->
-                _uiState.update { it.copy(isFirstLaunch = firstLaunch, isLoading = false) }
+            dataStoreManager.isFirstLaunch.collect { firstLaunch ->
+                _uiState.update { state ->
+                    state.copy(isFirstLaunch = firstLaunch, isLoading = false)
+                }
+            }
+        }
+
+        // Read the persisted permissions state from DataStore
+        viewModelScope.launch {
+            dataStoreManager.hasPermissions.collect { hasPermissions ->
+                _uiState.update { state ->
+                    state.copy(hasPermissions = hasPermissions)
+                }
             }
         }
     }
 
     fun setFirstLaunchDone() {
+
         viewModelScope.launch { dataStoreManager.setFirstLaunchDone() }
     }
 

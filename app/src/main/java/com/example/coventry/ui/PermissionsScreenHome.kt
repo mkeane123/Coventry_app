@@ -2,6 +2,7 @@ package com.example.coventry.ui
 
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -55,19 +56,28 @@ fun PermissionsScreenHomeComposable(
 ) {
     // handle permisisons
     val context = LocalContext.current
-    val hasPermission by viewModel.hasPermissions.collectAsState()
-    val isFirstLaunch = viewModel.isFirstLaunch.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
+    //Log.d("Permission check", "hasPermissions: ${uiState.hasPermissions}")
 
-    val permissions = arrayOf(
-        android.Manifest.permission.RECORD_AUDIO,
-    )
+    //val hasPermission by viewModel.hasPermissions.collectAsState()
+
+    //val isFirstLaunch = viewModel.isFirstLaunch.collectAsState().value
+
+    val permissions = buildList {
+        add(android.Manifest.permission.RECORD_AUDIO)
+        add(android.Manifest.permission.RECEIVE_SMS)
+        add(android.Manifest.permission.READ_SMS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }.toTypedArray()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
 
     ) { result ->
         val allGranted = result.values.all { it }
-        viewModel.updatePermissionsGranted(allGranted)
+        viewModel.updatePermissionsGranted(true)
         if (allGranted) {
             viewModel.updateFirstLaunchDone()
         }
@@ -77,9 +87,10 @@ fun PermissionsScreenHomeComposable(
         val allGranted = permissions.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
-        viewModel.updatePermissionsGranted(allGranted)
+        Log.d("Permission check (inside)", "Has permissions: $allGranted")
+        viewModel.updatePermissionsGranted(true)
 
-        if (!allGranted && isFirstLaunch){
+        if (!allGranted && uiState.isFirstLaunch){
             permissionLauncher.launch(permissions)
         } else if (allGranted) {
             viewModel.updateFirstLaunchDone()
@@ -87,7 +98,7 @@ fun PermissionsScreenHomeComposable(
 
     }
 
-    if (hasPermission){
+    if (uiState.hasPermissions){
         TestDisplay("Microphone permission granted!")
     }else{
         Column(
@@ -99,7 +110,10 @@ fun PermissionsScreenHomeComposable(
         ) {
             Text("This app needs microphone access to work properly.")
             Spacer(modifier = Modifier.size(24.dp))
-            Button(onClick = {permissionLauncher.launch(permissions)}) {
+            Button(onClick = {
+                permissionLauncher.launch(permissions)
+                Log.d("Button Pressed", "Has permissions: ${uiState.hasPermissions}")
+            }) {
                 Text(text = "Grant Microphone Permission")
             }
         }

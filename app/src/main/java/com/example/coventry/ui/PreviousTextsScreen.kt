@@ -3,36 +3,39 @@ package com.example.coventry.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.coventry.CoventryScreen
 import com.example.coventry.R
 
-import com.example.coventry.data.PreviousText
+import com.example.coventry.data.model.PreviousText
 import com.example.coventry.ui.utils.ContentType
 import java.time.ZonedDateTime
+import java.util.Date
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -54,12 +57,20 @@ fun PastTextsHome(
             //modifier = modifier
         )
     } else {
+        PastTextsScreenOneColNew(
+            onNextButtonClicked = onIndividualCardPressed,
+            navController = navController,
+            viewModel = viewModel
+            //modifier = modifier
+        )
+        /*
         PastTextsScreenOneCol(
             onNextButtonClicked = onIndividualCardPressed,
             navController = navController,
             viewModel = viewModel
             //modifier = modifier
         )
+        */
     }
 
 
@@ -75,12 +86,12 @@ fun PastTextsScreenGrid(
     //modifier: Modifier
 ) {
     val testPreviousText: PreviousText = PreviousText(
-        threatLevel = 1,
-        titleResourceId = R.string.example_call_title1,
-        content = "See on Friday",
-        callingNumber = "07728345613",
-        timeOfText = ZonedDateTime.now()
+        id = 1,
+        sender = "07865438765",
+        body = "This is test text message body",
+        timestamp = 12
     )
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2)
     ) {
@@ -102,6 +113,43 @@ fun PastTextsScreenGrid(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+fun PastTextsScreenOneColNew(
+    onNextButtonClicked: (PreviousText) -> Unit,
+    navController: NavController,
+    viewModel: CoventryViewModel,
+    modifier: Modifier = Modifier
+) {
+    val messages by viewModel.allTexts.collectAsState(initial = emptyList())
+
+    /*
+    LazyColumn{
+        items(messages) {message ->
+            Text("From: ${message.sender}")
+            Text("Message: ${message.body}")
+            Text("Time: ${Date(message.timestamp)}")
+            HorizontalDivider()
+
+        }
+    }
+
+
+
+     */
+    LazyColumn{
+        items(messages) {message ->
+            PreviousTextItem(
+                previousText = message,
+                onClick = { onNextButtonClicked(message)},
+                navController = navController,
+                viewModel = viewModel
+            )
+
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
 fun PastTextsScreenOneCol(
     onNextButtonClicked: (PreviousText) -> Unit,
     navController: NavController,
@@ -109,26 +157,26 @@ fun PastTextsScreenOneCol(
     modifier: Modifier = Modifier
 ) {
     val testPreviousText: PreviousText = PreviousText(
-        threatLevel = 1,
-        titleResourceId = R.string.example_call_title1,
-        content = "See you on Friday",
-        callingNumber = "07728345613",
-        timeOfText = ZonedDateTime.now()
+        id = 1,
+        sender = "07865438765",
+        body = "This is test text message body",
+        timestamp = 12
     )
+
     val testPreviousText2: PreviousText = PreviousText(
-        threatLevel = 2,
-        titleResourceId = R.string.example_call_title2,
-        content = "I am from your bank",
-        callingNumber = "07728344343",
-        timeOfText = ZonedDateTime.now()
+        id = 1,
+        sender = "07865438765",
+        body = "This is test text message body",
+        timestamp = 12
     )
+
     val testPreviousText3: PreviousText = PreviousText(
-        threatLevel = 3,
-        titleResourceId = R.string.example_call_title3,
-        content = "Please send me money",
-        callingNumber = "07728345123",
-        timeOfText = ZonedDateTime.now()
+        id = 1,
+        sender = "07865438765",
+        body = "This is test text message body",
+        timestamp = 12
     )
+
     val previousTexts = listOf<PreviousText>(testPreviousText, testPreviousText2, testPreviousText3)
     Scaffold(
 
@@ -172,17 +220,20 @@ fun PreviousTextItem(
             modifier = Modifier.fillMaxSize()
         ) {
             Row(
-                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 16.dp)
+                    .fillMaxWidth()
+                ,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
 
-                Text(
-                    text = stringResource(id = previousText.titleResourceId),
-                    fontSize = 32.sp,
-                    modifier = Modifier.padding(start = 20.dp)
-                )
+                Text("From: ${previousText.sender}", fontSize = 24.sp, modifier = Modifier.padding(end = 16.dp))
+                //Text("Message: ${previousText.body}")
+                //Spacer(modifier = Modifier.weight(1f))
+                Text("Time: ${Date(previousText.timestamp)}", fontSize = 20.sp)
 
-                Spacer(modifier = Modifier.weight(1f))
+                //Spacer(modifier = Modifier.weight(1f))
 
             }
         }
