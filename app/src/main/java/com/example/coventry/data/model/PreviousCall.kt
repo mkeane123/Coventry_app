@@ -1,4 +1,4 @@
-package com.example.coventry.data
+package com.example.coventry.data.model
 
 import androidx.annotation.StringRes
 import java.time.ZonedDateTime

@@ -67,6 +67,7 @@ fun PermissionsScreenHomeComposable(
         add(android.Manifest.permission.RECORD_AUDIO)
         add(android.Manifest.permission.RECEIVE_SMS)
         add(android.Manifest.permission.READ_SMS)
+        add(android.Manifest.permission.READ_PHONE_STATE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             add(android.Manifest.permission.POST_NOTIFICATIONS)
         }

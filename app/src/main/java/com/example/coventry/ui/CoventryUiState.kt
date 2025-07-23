@@ -2,10 +2,9 @@ package com.example.coventry.ui
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.room.PrimaryKey
 import com.example.coventry.R
 
-import com.example.coventry.data.PreviousCall
+import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
 import java.time.LocalDateTime
 import java.time.ZoneId

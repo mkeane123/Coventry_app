@@ -92,6 +92,14 @@ fun LiveCallDefaultScreen(
         viewModel.loadVocab(context)
     }
 
+    LaunchedEffect(viewModel.uiState.collectAsState().value.onCall){
+        if (viewModel.uiState.value.onCall) {
+            viewModel.startRecording(context)
+        } else {
+            viewModel.stopRecording()
+        }
+    }
+
 
     /*
     Code below is for pre processing and tokenising text before sending to model for prediction,
@@ -185,7 +193,14 @@ fun LiveCallDefaultScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = { isMuted = !isMuted }, // IMPLEMENT LOGIC HERE TO STOP LISTENING TO DEVICE AUDIO
+            Button(onClick = {
+                isMuted = !isMuted
+                if (isMuted){
+                    viewModel.stopRecording()
+                } else {
+                    viewModel.startRecording(context)
+                }
+                             }, // IMPLEMENT LOGIC HERE TO STOP LISTENING TO DEVICE AUDIO
                 modifier = Modifier
                     .size(100.dp)
                     .padding(top = 16.dp, end = 16.dp),

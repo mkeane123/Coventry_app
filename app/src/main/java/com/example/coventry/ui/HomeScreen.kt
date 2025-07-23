@@ -1,6 +1,9 @@
 package com.example.coventry.ui
 
+import android.content.Context
 import android.os.Build
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -42,20 +45,50 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.coventry.CoventryScreen
 
 
-@RequiresApi(Build.VERSION_CODES.O)
+//@RequiresApi(Build.VERSION_CODES.O)
+//@RequiresApi(value = 31)
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: CoventryViewModel
 ) {
+    val context = LocalContext.current
     var isSideMenuOpen by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val telephonyCallback = viewModel.createCallListener(context)
+            telephonyManager.registerTelephonyCallback(ContextCompat.getMainExecutor(context), telephonyCallback)
+        } else {
+            val listener = object : PhoneStateListener() {
+                override fun onCallStateChanged(state: Int, phoneNumber: String?) {
+                    when (state) {
+                        TelephonyManager.CALL_STATE_RINGING,
+                        TelephonyManager.CALL_STATE_OFFHOOK -> {
+                            viewModel.setOnCall(true)
+                        }
+                        TelephonyManager.CALL_STATE_IDLE -> {
+                            viewModel.setOnCall(false)
+                        }
+                    }
+                }
+            }
+            @Suppress("DEPRECATION")
+            telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
+        }
+    }
+
 
     Log.d("Home Screen", "isFirstLaunch: ${uiState.isFirstLaunch}")
 

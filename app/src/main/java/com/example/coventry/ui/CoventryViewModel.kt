@@ -12,11 +12,18 @@ import kotlinx.coroutines.launch
 
 import android.content.Context
 import android.content.res.AssetManager
+import android.media.MediaRecorder
 import android.os.Build
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyManager
+import android.telephony.TelephonyManager.CALL_STATE_RINGING
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.example.coventry.data.PreviousCall
-import com.example.coventry.data.local.AppDatabase
+import androidx.core.content.ContextCompat
+import androidx.datastore.core.IOException
+import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
 import com.example.coventry.data.repository.PreviousTextRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,9 +31,10 @@ import org.json.JSONObject
 import org.pytorch.IValue
 import org.pytorch.Module
 import org.pytorch.Tensor
+import org.vosk.Model
+import org.vosk.android.StorageService
 import java.io.File
 import java.io.FileOutputStream
-import java.sql.Timestamp
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -35,6 +43,140 @@ class CoventryViewModel(
     private val textRepository: PreviousTextRepository
 ) : ViewModel() {
 
+    private val _onCall = MutableStateFlow(false)
+    val onCall: StateFlow<Boolean> = _onCall
+
+    private var mediaRecorder: MediaRecorder? = null
+    private var audioFile: File? = null
+
+    fun startRecording(context: Context) {
+        try {
+            val outputDir = context.cacheDir
+            audioFile = File.createTempFile("call_audio_", ".m4a", outputDir)
+
+            mediaRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFile(audioFile!!.absolutePath)
+                prepare()
+                start()
+            }
+
+            Log.d("Audio", "Recording started at: ${audioFile!!.absolutePath}")
+        } catch (e: Exception) {
+            Log.e("Audio", "Failed to start recording: ${e.message}")
+        }
+    }
+
+    fun stopRecording() {
+        try {
+            mediaRecorder?.apply {
+                stop()
+                release()
+            }
+            mediaRecorder = null
+            Log.d("Audio", "Recording stopped. File saved at: ${audioFile?.absolutePath}")
+            processAudioForPrediction(audioFile)
+        } catch (e: Exception) {
+            Log.e("Audio", "Failed to stop recording: ${e.message}")
+        }
+    }
+
+    private fun processAudioForPrediction(audioFile: File?) {
+        if (audioFile == null) return
+
+        // TODO: MAKE THE AUDIO FILE A STRING
+        Log.d("Audio", "Ready to extract features from: ${audioFile.absolutePath}")
+    }
+
+
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun createCallListener(context: Context): TelephonyCallback {
+        return object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+            override fun onCallStateChanged(state: Int) {
+                when (state) {
+                    TelephonyManager.CALL_STATE_RINGING -> {
+                        Log.d("CALL_STATE", "Incoming call")
+                        _onCall.value = true
+                        setOnCall(true)
+                    }
+                    TelephonyManager.CALL_STATE_OFFHOOK -> {
+                        Log.d("CALL_STATE", "Call active")
+                        _onCall.value = true
+                        setOnCall(true)
+                    }
+                    TelephonyManager.CALL_STATE_IDLE -> {
+                        Log.d("CALL_STATE", "Call ended or idle")
+                        _onCall.value = false
+                        setOnCall(false)
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    /*
+    fun startCallStateListener(context: Context){
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            val callback = object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+                override fun onCallStateChanged(state: Int){
+                    when (state) {
+                        TelephonyManager.CALL_STATE_IDLE -> {
+                            _onCall.value = false
+                            setOnCall(false)
+                        }
+                        TelephonyManager.CALL_STATE_OFFHOOK -> {
+                            Log.d("CALL_STATE", "Call started or answered")
+                            _onCall.value = true
+                            setOnCall(true)
+                        }
+                        TelephonyManager.CALL_STATE_RINGING -> {
+                            Log.d("CALL_STATE", "Incoming call ringing")
+                        }
+                    }
+                }
+
+            }
+            telephonyManager.registerTelephonyCallback(
+                ContextCompat.getMainExecutor(context),
+                callback
+            )
+        } else {
+            // Backward compat
+
+            @Suppress("DEPRECATION")
+            val listener = object : android.telephony.PhoneStateListener() {
+                override fun onCallStateChanged(state: Int, phoneNumber: String?) {
+                    when (state) {
+                        TelephonyManager.CALL_STATE_IDLE -> {
+                            Log.d("CALL_STATE", "Call ended or idle (legacy)")
+                            _onCall.value = false
+                            setOnCall(false)
+                        }
+                        TelephonyManager.CALL_STATE_OFFHOOK -> {
+                            Log.d("CALL_STATE", "Call started or answered (legacy)")
+                            _onCall.value = true
+                            setOnCall(true)
+                        }
+                        TelephonyManager.CALL_STATE_RINGING -> {
+                            Log.d("CALL_STATE", "Incoming call ringing (legacy)")
+                        }
+                    }
+                }
+            }
+            @Suppress("DEPRECATION")
+            telephonyManager.listen(listener, android.telephony.PhoneStateListener.LISTEN_CALL_STATE)
+
+        }
+
+    }
+    */
 
     val allTexts: Flow<List<PreviousText>> = textRepository.getAllTexts()
 
@@ -60,6 +202,7 @@ class CoventryViewModel(
 
     // Incorporating pytorch model and handling functions for processing data and "sending" to model
     private var model: Module? = null
+    private var smsmodel: Module? = null
 
     /*
     private val _prediction = MutableStateFlow<String>("")
@@ -72,6 +215,15 @@ class CoventryViewModel(
     )
     private val _prediction = MutableStateFlow<PredictionResult?>(null)
     val prediction: StateFlow<PredictionResult?> = _prediction.asStateFlow()
+
+    data class PredictionResultSMS(
+        val label: String,
+        val confidence: Float
+    )
+    private val _predictionSMS = MutableStateFlow<PredictionResult?>(null)
+    val predictionSMS: StateFlow<PredictionResult?> = _predictionSMS.asStateFlow()
+
+
     private fun assetFilePath(context: Context, assetName: String): String {
         val file = File(context.filesDir, assetName)
 
@@ -110,9 +262,12 @@ class CoventryViewModel(
         viewModelScope.launch {
             try {
                 val modelFile = loadModelFile(assetManager, "deep_lstm_classifier_cpu.pt")
+                val modelFileSMS = loadModelFile(assetManager, "SMS_deep_lstm_classifier_cpu.pt")
                 model = Module.load(modelFile.absolutePath)
+                smsmodel = Module.load(modelFileSMS.absolutePath)
+
                 _isModelLoaded.value = true
-                Log.d("Model", "Model loaded success")
+                Log.d("Model", "Models loaded success")
             } catch (e: Exception) {
                 Log.e("Model","Failed to load model: ${e.localizedMessage}")
             }
@@ -143,6 +298,43 @@ class CoventryViewModel(
                 val label = classLabels.getOrNull(predictedIndex)?: "Unkown"
                 val confidencePercent = String.format("%.2f", confidence * 100)
 
+                //_prediction.value = "Prediction: $label\nConfidence: $confidencePercent%"
+                _prediction.value = PredictionResult(label = label, confidence = confidence)
+                //_prediction.value = "Predicted Class: $predictedClass"
+            } catch (e: Exception) {
+                Log.e("Predict", "Prediction error: ${e.localizedMessage}")
+                //_prediction.value = "Error: ${e.localizedMessage}"
+            }
+
+
+        }
+    }
+
+    fun predictFromTextIndicesSMS(inputIndices: LongArray) {
+        viewModelScope.launch {
+            Log.d("PredictSMS", "Input indices: ${inputIndices.joinToString()}")
+            if (model == null || !_isModelLoaded.value){
+                Log.w("Predict", "Model not yet loaded")
+                //_prediction.value = "Model not loaded"
+                return@launch
+            }
+            try {
+                val inputTensor = Tensor.fromBlob(inputIndices, longArrayOf(1, inputIndices.size.toLong()))
+                Log.d("PredictSMS", "Input tensor shape: ${inputTensor.shape().joinToString()}")
+                val outputTensor = model!!.forward(IValue.from(inputTensor)).toTensor()
+                val outputArray = outputTensor.dataAsFloatArray
+                Log.d("PredictSMS", "Output tensor: ${outputArray.joinToString()}")
+
+                // get predicted class index
+                val predictedIndex = outputArray.indices.maxByOrNull { outputArray[it] } ?: -1
+                val confidence = outputArray.getOrNull(predictedIndex)?: 0f
+
+                val classLabels = listOf("Scam", "Legit")
+
+                val label = classLabels.getOrNull(predictedIndex)?: "Unkown"
+                val confidencePercent = String.format("%.2f", confidence * 100)
+                Log.d("PredictSMS", "label $label")
+                Log.d("PredictSMS", "confidence $confidence")
                 //_prediction.value = "Prediction: $label\nConfidence: $confidencePercent%"
                 _prediction.value = PredictionResult(label = label, confidence = confidence)
                 //_prediction.value = "Predicted Class: $predictedClass"

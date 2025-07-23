@@ -8,6 +8,7 @@ import com.example.coventry.data.model.PreviousText
 
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,10 +25,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -44,6 +49,43 @@ fun IndividualPreviousTextHome(
     navController: NavController,
     previousText: PreviousText
 ) {
+
+    // pass text to model and get prediction value
+    val context = LocalContext.current
+    val predictionSMS by viewModel.predictionSMS.collectAsState()
+    val confidence = predictionSMS?.confidence
+    val label = predictionSMS?.label
+
+    Log.d("OnePastText", previousText.body)
+
+
+    LaunchedEffect(true){
+        viewModel.loadModel(context.assets)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadVocab(context)
+    }
+
+
+    val vocab = viewModel.getVocab()
+
+    val threatColour = when {
+        (predictionSMS?.confidence ?: 0f) >= 0.75f -> Color.Red       // High threat
+        (predictionSMS?.confidence ?: 0f) >= 0.4f -> Color.Yellow     // Medium threat
+        else -> Color.Green                                      // Low threat
+    }
+
+    val tokenized = vocab?.let {viewModel.tokenizeInput(previousText.body, it)}
+    if (tokenized != null){
+        viewModel.predictFromTextIndicesSMS(tokenized)
+    }
+
+
+
+
+
+
     val timeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a", Locale.UK)
     //val formattedTime = previousText.timeOfText.format(timeFormatter)
     Column (
@@ -105,14 +147,7 @@ fun IndividualPreviousTextHome(
                 }
             }
         }
-        /*
-        val threatColour = when (previousText.threatLevel){
-            1 -> Color.Green
-            2 -> Color.Yellow
-            else -> Color.Red
-        }
-        */
-        val threatColour = Color.Green
+
         Card (
             colors = CardDefaults.cardColors(containerColor = threatColour),
             modifier = Modifier
@@ -121,7 +156,10 @@ fun IndividualPreviousTextHome(
                 .height(100.dp)
 
         ) {
-            Text("")
+            if (confidence != null) {
+                Text(text = "Prediction: $label, Confidence: ${String.format("%.2f", confidence * 100)}%")
+            }
+            else {Text(text = "confidence was null")}
         }
 
         Box (      // Report and Block buttons

@@ -2,6 +2,7 @@ package com.example.coventry.ui
 
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -121,20 +122,7 @@ fun PastTextsScreenOneColNew(
 ) {
     val messages by viewModel.allTexts.collectAsState(initial = emptyList())
 
-    /*
-    LazyColumn{
-        items(messages) {message ->
-            Text("From: ${message.sender}")
-            Text("Message: ${message.body}")
-            Text("Time: ${Date(message.timestamp)}")
-            HorizontalDivider()
-
-        }
-    }
-
-
-
-     */
+    Log.d("MESSAGES", messages.toString())
     LazyColumn{
         items(messages) {message ->
             PreviousTextItem(

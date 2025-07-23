@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.coventry.CoventryScreen
 import com.example.coventry.R
-import com.example.coventry.data.PreviousCall
+import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.ui.utils.ContentType
 import java.time.ZonedDateTime
 

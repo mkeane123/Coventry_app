@@ -2,8 +2,7 @@ package com.example.coventry.ui
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.example.coventry.data.PreviousCall
-import com.example.coventry.ui.utils.ContentType
+import com.example.coventry.data.model.PreviousCall
 
 @Composable
 fun SettingsHomeScreen(
