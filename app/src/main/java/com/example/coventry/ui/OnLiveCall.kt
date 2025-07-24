@@ -222,7 +222,7 @@ fun LiveCallDefaultScreen(
 
 
             }
-            Button(onClick = { onEndCallButtonClicked }, // IMPLEMENT CODE TO END CALL
+            Button(onClick = { viewModel.stopRecording() }, // IMPLEMENT CODE TO END CALL, this was onEndCallButtonClicked
                 modifier = Modifier
                     .size(100.dp)
                     .padding(top = 16.dp, start = 16.dp),

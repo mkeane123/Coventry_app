@@ -122,7 +122,7 @@ fun PastTextsScreenOneColNew(
 ) {
     val messages by viewModel.allTexts.collectAsState(initial = emptyList())
 
-    Log.d("MESSAGES", messages.toString())
+    //Log.d("MESSAGES", messages.toString())
     LazyColumn{
         items(messages) {message ->
             PreviousTextItem(

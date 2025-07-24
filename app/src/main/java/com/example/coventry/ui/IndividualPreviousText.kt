@@ -63,21 +63,24 @@ fun IndividualPreviousTextHome(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadVocab(context)
+        viewModel.loadVocabSMS(context)
     }
 
-    val vocab = viewModel.getVocab()
+    val vocabSMS = viewModel.getVocabSMS()
 
     val threatColour = when {
         (predictionSMS?.confidence ?: 0f) >= 0.75f -> Color.Red       // High threat
         (predictionSMS?.confidence ?: 0f) >= 0.4f -> Color.Yellow     // Medium threat
         else -> Color.Green                                      // Low threat
     }
+    if (vocabSMS == null){
+        Log.d("vocab","Vocab was null")
+    }else {Log.d("vocab","Vocab was not null")}
 
-    val tokenized = vocab?.let {viewModel.tokenizeInput(previousText.body, it)}
+    val tokenized = vocabSMS?.let {viewModel.tokenizeInputSMS(previousText.body, it)}
     if (tokenized != null){
         viewModel.predictFromTextIndicesSMS(tokenized)
-    }
+    }else{Log.d("IndividualPreviousText","tokenized was null")}
 
 
     val timeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a", Locale.UK)
@@ -91,13 +94,26 @@ fun IndividualPreviousTextHome(
                 .padding(16.dp),
 
             ) {
-            Text(
-                text = "Threat level ",
-                //text = "Threat level: ${previousText.threatLevel}",
-                fontSize = 25.sp,
-                modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
+            if (confidence != null) {
+                if (confidence >= 1) {
+                    Text(
+                        text = "Threat level: 100%",
+                        //text = "Threat level: ${previousText.threatLevel}",
+                        fontSize = 25.sp,
+                        modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
 
-            )
+                    )
+                } else {
+                    Text(
+                        text = "Threat level: No threat",
+                        //text = "Threat level: ${previousText.threatLevel}",
+                        fontSize = 25.sp,
+                        modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
+
+                    )
+                }
+
+            }
             Text(
                 text = "Time of Text:${Date(previousText.timestamp)}",
                 //text = "Time of Text:\n$formattedTime",
@@ -142,21 +158,52 @@ fun IndividualPreviousTextHome(
             }
         }
 
-        Card (
+
+        Card(
             colors = CardDefaults.cardColors(containerColor = threatColour),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .height(100.dp)
+                .height(100.dp),
 
-        ) {
-            if (confidence != null) {
-                val threshold = 0.75f
-                viewModel.checkThresholdAndPLaySound(context = context, value = confidence, threshold = threshold)
-                Text(text = "Prediction: $label, Confidence: ${String.format("%.2f", confidence * 100)}%")
+
+            ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                if (confidence != null) {
+                    // play sound if threat was above a certain threshold
+                    val threshold = 0.75f
+                    viewModel.checkThresholdAndPLaySound(
+                        context = context,
+                        value = confidence,
+                        threshold = threshold
+                    )
+
+                    if (confidence < 0) {
+                        Text(
+                            text = "No threat",
+                            fontSize = 30.sp
+                        )
+                    } else {
+                        Text(
+                            text = "SCAM",
+                            fontSize = 30.sp
+                        )
+                    }
+                    /*
+                    Text(
+                        text = "Prediction: $label, Confidence: ${String.format("%.2f", confidence)}%"
+                    ) // here the confidence was multiplied by 100 but for some reason the output from the text model  doesn't need to be multiplied (either that or the percentages are really high in regards to what is output
+                    */
+                } else {
+                    Text(text = "confidence was null")
+                }
             }
-            else {Text(text = "confidence was null")}
+
         }
+
 
         Box (      // Report and Block buttons
             modifier = Modifier

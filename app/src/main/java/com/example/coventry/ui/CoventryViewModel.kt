@@ -326,7 +326,7 @@ class CoventryViewModel(
     fun predictFromTextIndicesSMS(inputIndices: LongArray) {
         viewModelScope.launch {
             Log.d("PredictSMS", "Input indices: ${inputIndices.joinToString()}")
-            if (model == null || !_isModelLoaded.value){
+            if (smsmodel == null || !_isModelLoaded.value){
                 Log.w("Predict", "Model not yet loaded")
                 //_prediction.value = "Model not loaded"
                 return@launch
@@ -334,7 +334,7 @@ class CoventryViewModel(
             try {
                 val inputTensor = Tensor.fromBlob(inputIndices, longArrayOf(1, inputIndices.size.toLong()))
                 Log.d("PredictSMS", "Input tensor shape: ${inputTensor.shape().joinToString()}")
-                val outputTensor = model!!.forward(IValue.from(inputTensor)).toTensor()
+                val outputTensor = smsmodel!!.forward(IValue.from(inputTensor)).toTensor()
                 val outputArray = outputTensor.dataAsFloatArray
                 Log.d("PredictSMS", "Output tensor: ${outputArray.joinToString()}")
 
@@ -345,15 +345,15 @@ class CoventryViewModel(
                 val classLabels = listOf("Scam", "Legit")
 
                 val label = classLabels.getOrNull(predictedIndex)?: "Unkown"
-                val confidencePercent = String.format("%.2f", confidence * 100)
+
                 Log.d("PredictSMS", "label $label")
                 Log.d("PredictSMS", "confidence $confidence")
-                //_prediction.value = "Prediction: $label\nConfidence: $confidencePercent%"
+
                 _predictionSMS.value = PredictionResultSMS(label = label, confidence = confidence)
-                //_prediction.value = "Predicted Class: $predictedClass"
+
             } catch (e: Exception) {
                 Log.e("Predict", "Prediction error: ${e.localizedMessage}")
-                //_prediction.value = "Error: ${e.localizedMessage}"
+
             }
 
 
@@ -362,6 +362,9 @@ class CoventryViewModel(
 
     private var vocab: Map<String, Int>? = null
     fun getVocab(): Map<String, Int>? = vocab
+
+    private var smsVocab: Map<String, Int>? = null
+    fun getVocabSMS(): Map<String, Int>? = smsVocab
 
 
     fun loadVocab(context: Context): Map<String, Int> {
@@ -374,6 +377,20 @@ class CoventryViewModel(
             vocabMap[key] = jsonObject.getInt(key)
         }
         vocab = vocabMap
+        Log.d("VOCAB", "Loaded vocab with ${vocab?.size ?: 0} entries")
+        return vocabMap
+    }
+
+    fun loadVocabSMS(context: Context): Map<String, Int> {
+        val inputStream = context.assets.open("text_vocab.json")
+        val jsonString = inputStream.bufferedReader().use { it.readText() }
+        val jsonObject = JSONObject(jsonString)
+        val vocabMap = mutableMapOf<String, Int>()
+
+        jsonObject.keys().forEach { key ->
+            vocabMap[key] = jsonObject.getInt(key)
+        }
+        smsVocab = vocabMap
         Log.d("VOCAB", "Loaded vocab with ${vocab?.size ?: 0} entries")
         return vocabMap
     }
@@ -399,14 +416,54 @@ class CoventryViewModel(
             vocab[token] ?: unkIndex
         }
 
+        /*
         // Pad or truncate
         val padded = if (encoded.size >= maxLen) {
             encoded.take(maxLen)
         } else {
             encoded + List(maxLen - encoded.size) { padIndex }
         }
+        */
+
         Log.d("Tokenizer", "Tokenized indices: $encoded")
-        return padded.map { it.toLong() }.toLongArray()
+        return encoded.map { it.toLong() }.toLongArray()
+        // above encoded was padded
+
+    }
+
+    fun tokenizeInputSMS(
+        input: String,
+        vocab: Map<String, Int>,
+        maxLen: Int = 45
+    ): LongArray {
+        Log.d("Tokenizer", "In tokenizer")
+        Log.d("Tokenizer", "Raw input: $input")
+        val padIndex = vocab["<PAD>"] ?: 0
+        val unkIndex = vocab["<UNK>"] ?: 0 // I put this to 9821 and everyhing stopped working, put back to 1 for now// this was one, but that does not correspond to <UNK> in the vocab as <UNK> was not in vocab so added it manually hence this number
+
+        // Simple whitespace tokenization
+        val tokens = input.lowercase()
+            .split("\\s+".toRegex())
+            .filter { it.isNotBlank() }
+
+        // Convert tokens to indices
+        val encoded = tokens.map { token ->
+            vocab[token] ?: unkIndex
+        }
+
+        /*
+        // Pad or truncate
+        val padded = if (encoded.size >= maxLen) {
+            encoded.take(maxLen)
+        } else {
+            encoded + List(maxLen - encoded.size) { padIndex }
+        }
+        */
+
+        Log.d("Tokenizer", "Tokenized indices: $encoded")
+        return encoded.map { it.toLong() }.toLongArray()
+        // above encoded was padded
+
     }
 
 
