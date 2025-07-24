@@ -58,7 +58,6 @@ fun IndividualPreviousTextHome(
 
     Log.d("OnePastText", previousText.body)
 
-
     LaunchedEffect(true){
         viewModel.loadModel(context.assets)
     }
@@ -66,7 +65,6 @@ fun IndividualPreviousTextHome(
     LaunchedEffect(Unit) {
         viewModel.loadVocab(context)
     }
-
 
     val vocab = viewModel.getVocab()
 
@@ -80,10 +78,6 @@ fun IndividualPreviousTextHome(
     if (tokenized != null){
         viewModel.predictFromTextIndicesSMS(tokenized)
     }
-
-
-
-
 
 
     val timeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a", Locale.UK)
@@ -157,6 +151,8 @@ fun IndividualPreviousTextHome(
 
         ) {
             if (confidence != null) {
+                val threshold = 0.75f
+                viewModel.checkThresholdAndPLaySound(context = context, value = confidence, threshold = threshold)
                 Text(text = "Prediction: $label, Confidence: ${String.format("%.2f", confidence * 100)}%")
             }
             else {Text(text = "confidence was null")}
@@ -197,9 +193,7 @@ fun IndividualPreviousTextHome(
 
                 }
 
-
                 Spacer(modifier = Modifier.width(48.dp))
-
 
                 Card (
                     modifier = Modifier
@@ -219,7 +213,6 @@ fun IndividualPreviousTextHome(
                         )
                     }
                 }
-
 
             }
         }

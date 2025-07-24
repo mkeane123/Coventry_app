@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 import android.content.Context
 import android.content.res.AssetManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.telephony.PhoneStateListener
@@ -23,6 +24,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.IOException
+import com.example.coventry.R
 import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
 import com.example.coventry.data.repository.PreviousTextRepository
@@ -99,8 +101,8 @@ class CoventryViewModel(
                 when (state) {
                     TelephonyManager.CALL_STATE_RINGING -> {
                         Log.d("CALL_STATE", "Incoming call")
-                        _onCall.value = true
-                        setOnCall(true)
+                        _onCall.value = false
+                        setOnCall(false)
                     }
                     TelephonyManager.CALL_STATE_OFFHOOK -> {
                         Log.d("CALL_STATE", "Call active")
@@ -113,6 +115,17 @@ class CoventryViewModel(
                         setOnCall(false)
                     }
                 }
+            }
+        }
+    }
+
+    fun checkThresholdAndPLaySound(context: Context, value: Float, threshold: Float){
+        if (value > threshold) {
+            val mediaPlayer = MediaPlayer.create(context, R.raw.alert)
+            mediaPlayer.start()
+
+            mediaPlayer.setOnCompletionListener {
+                it.release()
             }
         }
     }
@@ -220,8 +233,8 @@ class CoventryViewModel(
         val label: String,
         val confidence: Float
     )
-    private val _predictionSMS = MutableStateFlow<PredictionResult?>(null)
-    val predictionSMS: StateFlow<PredictionResult?> = _predictionSMS.asStateFlow()
+    private val _predictionSMS = MutableStateFlow<PredictionResultSMS?>(null)
+    val predictionSMS: StateFlow<PredictionResultSMS?> = _predictionSMS.asStateFlow()
 
 
     private fun assetFilePath(context: Context, assetName: String): String {
@@ -336,7 +349,7 @@ class CoventryViewModel(
                 Log.d("PredictSMS", "label $label")
                 Log.d("PredictSMS", "confidence $confidence")
                 //_prediction.value = "Prediction: $label\nConfidence: $confidencePercent%"
-                _prediction.value = PredictionResult(label = label, confidence = confidence)
+                _predictionSMS.value = PredictionResultSMS(label = label, confidence = confidence)
                 //_prediction.value = "Predicted Class: $predictedClass"
             } catch (e: Exception) {
                 Log.e("Predict", "Prediction error: ${e.localizedMessage}")
@@ -374,7 +387,7 @@ class CoventryViewModel(
         Log.d("Tokenizer", "In tokenizer")
         Log.d("Tokenizer", "Raw input: $input")
         val padIndex = vocab["<PAD>"] ?: 0
-        val unkIndex = vocab["<UNK>"] ?: 1
+        val unkIndex = vocab["<UNK>"] ?: 1 // I put this to 9821 and everyhing stopped working, put back to 1 for now// this was one, but that does not correspond to <UNK> in the vocab as <UNK> was not in vocab so added it manually hence this number
 
         // Simple whitespace tokenization
         val tokens = input.lowercase()

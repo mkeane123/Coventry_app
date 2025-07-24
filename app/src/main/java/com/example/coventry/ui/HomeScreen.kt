@@ -74,7 +74,9 @@ fun HomeScreen(
             val listener = object : PhoneStateListener() {
                 override fun onCallStateChanged(state: Int, phoneNumber: String?) {
                     when (state) {
-                        TelephonyManager.CALL_STATE_RINGING,
+                        TelephonyManager.CALL_STATE_RINGING -> {
+                            viewModel.setOnCall(true)
+                                                               }
                         TelephonyManager.CALL_STATE_OFFHOOK -> {
                             viewModel.setOnCall(true)
                         }
