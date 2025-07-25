@@ -24,9 +24,13 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.IOException
+import androidx.room.Room
 import com.example.coventry.R
+import com.example.coventry.data.local.AppDatabase
+import com.example.coventry.data.model.CallRecord
 import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
+import com.example.coventry.data.repository.CallRecordRepository
 import com.example.coventry.data.repository.PreviousTextRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -44,8 +48,62 @@ import java.lang.StringBuilder
 @RequiresApi(Build.VERSION_CODES.O)
 class CoventryViewModel(
     private val dataStoreManager: DataStoreManager,
-    private val textRepository: PreviousTextRepository
+    private val textRepository: PreviousTextRepository,
+    private val callRecordRepository: CallRecordRepository
 ) : ViewModel() {
+
+    // handling call records
+    private var callStartTime: Long = 0
+    private var callPhoneNumber: String = ""
+    private val currentTranscript = StringBuilder()
+
+    fun startCallSession(phoneNumber: String){
+        callPhoneNumber = phoneNumber
+        callStartTime = System.currentTimeMillis()
+        currentTranscript.clear()
+    }
+
+    fun appendTranscript(text: String){ // I think the body of this function is correct althoguh I am honestly not sure
+        currentTranscript.append("$text ")
+        val tokenized = vocab?.let { tokenizeInput(text, it)}
+        if (tokenized != null) {
+            predictFromTextIndices(tokenized)
+        }
+
+    }
+
+    fun endCallSession(context: Context) {
+        val endTime = System.currentTimeMillis()
+        val callRecord = CallRecord(
+            phoneNumber = callPhoneNumber,
+            startTime = callStartTime,
+            endTime = endTime,
+            transcript = currentTranscript.toString().trim()
+        )
+
+        val db = AppDatabase.getDatabase(context)
+
+        viewModelScope.launch {
+            db.callRecordDao().insert(callRecord)
+            Log.d("CallRecord", "Inserted call record: $callRecord")
+        }
+    }
+
+    /*
+    fun logAllCallRecords(context: Context) {
+        val db = AppDatabase.getDatabase(context)
+
+        viewModelScope.launch {
+            val records = db.callRecordDao().getAll()
+            records.forEach{
+                Log.d("CallRecord", "ID: ${it.id}, Number: ${it.phoneNumber}, Start: ${it.startTime}, End: ${it.endTime}, Transcript: ${it.transcript}")
+            }
+        }
+    }
+    */
+
+
+
 
     private val _onCall = MutableStateFlow(false)
     val onCall: StateFlow<Boolean> = _onCall
@@ -213,6 +271,7 @@ class CoventryViewModel(
     */
 
     val allTexts: Flow<List<PreviousText>> = textRepository.getAllTexts()
+    val allCallRecords: Flow<List<CallRecord>> = callRecordRepository.getAllCallRecords()
 
     fun saveIncomingText(sender: String, message: String, timestamp: Long){
         val text = PreviousText(
@@ -530,6 +589,11 @@ class CoventryViewModel(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    fun updateCurrentSelectedCallRecord(callRecord: CallRecord) {
+        _uiState.value = uiState.value.copy(currentSelectedCallRecord = callRecord)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setIsShowingHomePage(isShowing: Boolean) {
         _uiState.update { it.copy(isShowingHomePage = isShowing) }
 
@@ -584,7 +648,9 @@ class CoventryViewModel(
         viewModelScope.launch { dataStoreManager.setFirstLaunchDone() }
     }
 
-
+    fun setPhoneNumber(incomingNumber: String) {
+        callPhoneNumber = incomingNumber
+    }
 
 
 }

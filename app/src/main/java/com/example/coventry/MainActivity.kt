@@ -1,11 +1,13 @@
 package com.example.coventry
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +31,8 @@ class MainActivity : ComponentActivity() {
 
 
     private lateinit var speechRecognizer: SpeechRecognizer
+    //private lateinit var phoneStateReceiver: PhoneStateReceiver
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -44,6 +48,13 @@ class MainActivity : ComponentActivity() {
 
         // speech recognition stuff // I FEEL LIKE THIS CODE SHOULD DEFINATELY NOT BE HERE
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+
+        /*
+        phoneStateReceiver = PhoneStateReceiver(viewModel)
+        val filter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+        registerReceiver(phoneStateReceiver, filter)
+
+         */
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -68,7 +79,29 @@ class MainActivity : ComponentActivity() {
             override fun onEvent(eventType: Int, params: Bundle?) {}
         })
 
-        speechRecognizer.startListening(intent)
+        //speechRecognizer.startListening(intent)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+
+            val liveSpeechRecognizer = LiveSpeechRecognizer(context = context, viewModel = viewModel, speechRecognizer = speechRecognizer)
+
+            val dummyPhoneNumber = "unknown"
+
+            val callback = MyCallStateCallBack(
+                context = this,
+                viewModel = viewModel,
+                liveSpeechRecognizer = liveSpeechRecognizer,
+                phoneNumber = dummyPhoneNumber
+
+            )
+
+            telephonyManager.registerTelephonyCallback(mainExecutor, callback)
+
+
+
+
+        }
 
         setContent {
             CoventryTheme {
@@ -89,6 +122,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        //unregisterReceiver(phoneStateReceiver)
     }
 }
 

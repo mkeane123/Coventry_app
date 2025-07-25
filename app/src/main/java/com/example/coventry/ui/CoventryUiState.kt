@@ -3,6 +3,7 @@ package com.example.coventry.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.coventry.R
+import com.example.coventry.data.model.CallRecord
 
 import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
@@ -18,13 +19,21 @@ data class CoventryUiState  constructor(
     var onCall: Boolean = true,
     var isShowingHomePage: Boolean = false,
     var currentSelectedPastCall: PreviousCall = testPreviousCall,
-    var currentSelectedPastText: PreviousText = testPreviousText
+    var currentSelectedPastText: PreviousText = testPreviousText,
+    var currentSelectedCallRecord: CallRecord = testCallRecord
     //var currentSelectedCategory: CategoryOfPlace = categoriesOfPlaces[0]
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
 
+val testCallRecord: CallRecord = CallRecord(
+    id = 1,
+    endTime = 100,
+    phoneNumber = "07728334147",
+    startTime = 101,
+    transcript = "skibidi toilet"
 
+)
 val testPreviousText: PreviousText = PreviousText(
     id = 1,
     sender = "07865438765",

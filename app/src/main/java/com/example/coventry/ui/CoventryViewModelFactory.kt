@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.coventry.data.DataStoreManager
+import com.example.coventry.data.repository.CallRecordRepository
 import com.example.coventry.data.repository.PreviousTextRepository
 
 
@@ -16,9 +17,14 @@ class CoventryViewModelFactory(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val repository = PreviousTextRepository(context.applicationContext)
+        val callRepository = CallRecordRepository(context.applicationContext)
         if (modelClass.isAssignableFrom(CoventryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CoventryViewModel(dataStoreManager, repository) as T
+            return CoventryViewModel(
+                dataStoreManager = dataStoreManager,
+                textRepository = repository,
+                callRecordRepository = callRepository
+            ) as T
         }
         throw IllegalArgumentException("Unkown ViewModel class")
     }

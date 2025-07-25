@@ -87,7 +87,15 @@ fun LiveCallDefaultScreen(
     var isMuted by remember { mutableStateOf(false) }
 
     // This is code for live transcription, I am not sure if it should go here or somewhere else
-    val liveRecognizer = LiveSpeechRecognizer(context, viewModel)
+    //val liveRecognizer = LiveSpeechRecognizer(context, viewModel)
+    //val liveRecognizer = LiveSpeechRecognizer(context = context, speechRecognizer = sp)
+
+    val speechRecognizer = remember{
+        android.speech.SpeechRecognizer.createSpeechRecognizer(context)
+    }
+    val liveRecognizer = remember {
+        LiveSpeechRecognizer(context = context, speechRecognizer = speechRecognizer, viewModel = viewModel)
+    }
 
 
     LaunchedEffect(true) {
