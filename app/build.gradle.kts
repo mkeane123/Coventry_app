@@ -90,6 +90,9 @@ dependencies {
 
     // vosk (audio transcription model)
     implementation("com.alphacephei:vosk-android:0.3.32")
+    //implementation("org.vosk:vosk-android:0.3.32")
+
+    //implementation("com.arthenica:mobile-ffmpeg-full-gpl:4.4")
 
     testImplementation("junit:junit:4.13.2")
 

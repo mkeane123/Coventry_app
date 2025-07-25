@@ -28,6 +28,7 @@ import com.example.coventry.R
 import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
 import com.example.coventry.data.repository.PreviousTextRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import org.pytorch.IValue
@@ -37,6 +38,7 @@ import org.vosk.Model
 import org.vosk.android.StorageService
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.StringBuilder
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -51,6 +53,12 @@ class CoventryViewModel(
     private var mediaRecorder: MediaRecorder? = null
     private var audioFile: File? = null
 
+    private val _liveTranscript = StringBuilder()
+    val liveTranscript: String get() =_liveTranscript.toString()
+
+    fun appendToLiveTranscript(text: String){
+        _liveTranscript.append(text).append("")
+    }
     fun startRecording(context: Context) {
         try {
             val outputDir = context.cacheDir
@@ -85,11 +93,24 @@ class CoventryViewModel(
         }
     }
 
+
+
     private fun processAudioForPrediction(audioFile: File?) {
         if (audioFile == null) return
 
-        // TODO: MAKE THE AUDIO FILE A STRING
         Log.d("Audio", "Ready to extract features from: ${audioFile.absolutePath}")
+    }
+
+
+
+
+
+
+
+    fun predictLiveTranscript(text: String){
+        val vocab = getVocab() ?: return
+        val tokenized = tokenizeInput(text, vocab)
+        predictFromTextIndices(tokenized)
     }
 
 

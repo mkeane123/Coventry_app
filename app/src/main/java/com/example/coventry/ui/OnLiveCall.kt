@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.coventry.LiveSpeechRecognizer
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -85,6 +86,10 @@ fun LiveCallDefaultScreen(
     var userInput by remember { mutableStateOf("") }
     var isMuted by remember { mutableStateOf(false) }
 
+    // This is code for live transcription, I am not sure if it should go here or somewhere else
+    val liveRecognizer = LiveSpeechRecognizer(context, viewModel)
+
+
     LaunchedEffect(true) {
         viewModel.loadModel(context.assets)
     }
@@ -95,8 +100,10 @@ fun LiveCallDefaultScreen(
     LaunchedEffect(viewModel.uiState.collectAsState().value.onCall){
         if (viewModel.uiState.value.onCall) {
             viewModel.startRecording(context)
+            liveRecognizer.startListening()
         } else {
             viewModel.stopRecording()
+            liveRecognizer.stopListening()
         }
     }
 
@@ -144,12 +151,23 @@ fun LiveCallDefaultScreen(
                     },
                     label = { Text ("Enter text")}
                 )
-
+                var newLabel = ""
                 if (label != null) {
                     if (confidence != null) {
-                        Text(text = "Prediction: $label, Confidence: ${String.format("%.2f", confidence * 100)}%")
-                    }
 
+                        when {
+                            (prediction?.confidence ?: 0f) >= 0.5f -> {
+                                newLabel = "SCAM"
+                                Text(text = "Prediction: $newLabel, Confidence: ${String.format("%.2f", confidence * 100)}%")
+                            }      // High threat
+                            else -> {
+                                newLabel = "NOT SCAM"
+                                Text(text = "Prediction: $newLabel")
+                            }
+                        }
+                        //Text(text = "Prediction: $newLabel, Confidence: ${String.format("%.2f", confidence * 100)}%")
+                        //Text(text = "Prediction: $newLabel")
+                    }
 
                 }
 
@@ -197,8 +215,19 @@ fun LiveCallDefaultScreen(
                 isMuted = !isMuted
                 if (isMuted){
                     viewModel.stopRecording()
+                    liveRecognizer.stopListening()
                 } else {
                     viewModel.startRecording(context)
+                    liveRecognizer.startListening()
+                    /*
+                    val fullTranscript = viewModel.liveTranscript
+                    val callRecord = CallRecord(
+                        timestamp = System.currentTimeMillis(),
+                        transcript = fullTranscript,
+                        audioPath = null // no audio if not recording
+                    )
+                    viewModel.saveCallRecord(callRecord)
+                     */
                 }
                              }, // IMPLEMENT LOGIC HERE TO STOP LISTENING TO DEVICE AUDIO
                 modifier = Modifier
@@ -222,7 +251,10 @@ fun LiveCallDefaultScreen(
 
 
             }
-            Button(onClick = { viewModel.stopRecording() }, // IMPLEMENT CODE TO END CALL, this was onEndCallButtonClicked
+            Button(onClick = {
+                viewModel.stopRecording()
+                liveRecognizer.stopListening()
+                             }, // IMPLEMENT CODE TO END CALL, this was onEndCallButtonClicked
                 modifier = Modifier
                     .size(100.dp)
                     .padding(top = 16.dp, start = 16.dp),
