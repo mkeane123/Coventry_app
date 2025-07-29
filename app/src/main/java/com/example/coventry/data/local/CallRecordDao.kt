@@ -12,8 +12,11 @@ interface CallRecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(record: CallRecord)
 
-    @Query("SELECT * FROM call_records ORDER BY startTime DESC")
+    @Query("SELECT * FROM call_records ORDER BY startTime ASC")
     fun getAll(): Flow<List<CallRecord>>//List<CallRecord>
-    //Flow<List<PreviousText>>
+
+    @Query("DELETE FROM call_records")
+    suspend fun clearAll()
+
 
 }

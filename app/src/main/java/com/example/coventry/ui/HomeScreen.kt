@@ -72,18 +72,34 @@ fun HomeScreen(
             telephonyManager.registerTelephonyCallback(ContextCompat.getMainExecutor(context), telephonyCallback)
         } else {
             val listener = object : PhoneStateListener() {
+                private var previousCallState: Int = TelephonyManager.CALL_STATE_IDLE
+
                 override fun onCallStateChanged(state: Int, phoneNumber: String?) {
                     when (state) {
-                        TelephonyManager.CALL_STATE_RINGING -> {
-                            viewModel.setOnCall(true)
-                                                               }
-                        TelephonyManager.CALL_STATE_OFFHOOK -> {
-                            viewModel.setOnCall(true)
-                        }
                         TelephonyManager.CALL_STATE_IDLE -> {
                             viewModel.setOnCall(false)
+                            viewModel.endCallSession(context)
+                            Log.d("HomeScreen", "Call session added")
+                            if (phoneNumber != null) {
+                                viewModel.setPhoneNumber(phoneNumber)
+                                Log.d("HomeScreen", "Phone Number set")
+                            }
+                            Log.d("HomeScreen", "Call ended")
+
+                        }
+                        TelephonyManager.CALL_STATE_OFFHOOK -> {
+                            viewModel.setOnCall(true)
+                            viewModel.startCallSession(viewModel.callPhoneNumberPublic)
+                            //liveSpeechRecognizer.startListening()
+                            Log.d("HomeScreen", "Call started or answered")
+                        }
+                        TelephonyManager.CALL_STATE_RINGING -> {
+                            viewModel.setOnCall(true)
+                            Log.d("HomeScreen", "Incoming call ringing")
                         }
                     }
+                    previousCallState = state
+
                 }
             }
             @Suppress("DEPRECATION")
@@ -92,7 +108,7 @@ fun HomeScreen(
     }
 
 
-    Log.d("Home Screen", "isFirstLaunch: ${uiState.isFirstLaunch}")
+    Log.d("HomeScreen", "isFirstLaunch: ${uiState.isFirstLaunch}")
 
     val onCall = uiState.onCall
 

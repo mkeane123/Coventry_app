@@ -302,7 +302,7 @@ fun CoventryApp(
                     onBlockButtonClicked = {viewModel.blockCaller()},
                     viewModel = viewModel,
                     navController = navController,
-                    previousCall = uiState.currentSelectedPastCall
+                    previousCall = uiState.currentSelectedCallRecord
                 )
 
             }
@@ -351,7 +351,8 @@ enum class CoventryScreen(@StringRes val title: Int) {
     IndividualPastCallScreen(title = R.string.individualPastCallScreen),
     IndividualPastTextScreen(title = R.string.individualPastTextScreen),
     OnBoardingScreen(title = R.string.on_boarding_screen),
-    Splash(title = R.string.app_name)
+    Splash(title = R.string.app_name),
+
 }
 
 @Preview

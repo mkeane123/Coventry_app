@@ -1,6 +1,7 @@
 package com.example.coventry.ui
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,14 +20,21 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.coventry.data.model.CallRecord
 import com.example.coventry.data.model.PreviousCall
+import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -36,10 +44,59 @@ fun IndividualPreviousCallHome(
     onBlockButtonClicked: () -> Unit,
     viewModel: CoventryViewModel,
     navController: NavController,
-    previousCall: PreviousCall
+    previousCall: CallRecord
 ) {
-    val timeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a", Locale.UK)
-    val formattedTime = previousCall.timeOfCall.format(timeFormatter)
+
+    // pass text to model and get prediction value
+    val context = LocalContext.current
+    val prediction by viewModel.prediction.collectAsState()
+    val confidence = prediction?.confidence
+    val label = prediction?.label
+
+    Log.d("OnePastText", previousCall.transcript)
+
+    LaunchedEffect(true){
+        viewModel.loadModel(context.assets)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadVocab(context)
+    }
+
+    val vocab = viewModel.getVocab()
+
+    val threatColour = when {
+        (prediction?.confidence ?: 0f) >= 0.75f -> Color.Red       // High threat
+        (prediction?.confidence ?: 0f) >= 0.4f -> Color.Yellow     // Medium threat
+        else -> Color.Green                                      // Low threat
+    }
+    if (vocab == null){
+        Log.d("vocab","Vocab was null")
+    }else {
+        Log.d("vocab","Vocab was not null")}
+
+    val tokenized = vocab?.let {viewModel.tokenizeInput(previousCall.transcript, it)}
+    if (tokenized != null){
+        viewModel.predictFromTextIndices(tokenized)
+    }else{
+        Log.d("IndividualPreviousText","tokenized was null")}
+
+    val startTimeMillis = previousCall.startTime
+
+    val date = Date(startTimeMillis)
+    val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    val formattedTime = formatter.format(date)
+
+    val durationMillis = previousCall.endTime - previousCall.startTime
+
+    //val durationMinutes = durationMillis /60000.0
+
+    val seconds = (durationMillis / 1000) % 60
+    val minutes = (durationMillis / (1000 * 60)) % 60
+    val hours = (durationMillis / (1000 * 60 * 60))
+
+    val durationFormatted = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+
     Column (
         modifier = Modifier.fillMaxSize()
     ) {
@@ -54,7 +111,7 @@ fun IndividualPreviousCallHome(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
-                    text = "Threat level: ${previousCall.threatLevel}",
+                    text = "Threat level: $label $confidence",
                     fontSize = 25.sp,
                     modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
 
@@ -65,19 +122,19 @@ fun IndividualPreviousCallHome(
                     modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
                 )
                 Text(
-                    "Duration of Call: ${previousCall.duration} minutes",
+                    "Duration of Call: $durationFormatted", //
                     fontSize = 25.sp,
                     modifier = Modifier.padding(start = 8.dp, top = 2.dp)
                 )
                 Text(
-                    "From: ${previousCall.callingNumber}",
+                    "From: ${previousCall.phoneNumber}",
                     fontSize = 25.sp,
                     modifier = Modifier.padding(start = 8.dp, top = 2.dp)
                 )
             }
         }
         val scrollState = rememberScrollState()
-        val transcriptionList = previousCall.dialogue
+        val transcriptionList = previousCall.transcript
         Text(
             text = "Contents of Call:",
             fontSize = 25.sp,
@@ -96,21 +153,15 @@ fun IndividualPreviousCallHome(
                 horizontalAlignment = Alignment.Start
 
             ) {
-                repeat(50){
-                    Text(
-                        previousCall.dialogue,
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
+                Text(
+                    previousCall.transcript,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
 
         }
-        val threatColour = when (previousCall.threatLevel){
-            1 -> Color.Green
-            2 -> Color.Yellow
-            else -> Color.Red
-        }
+
         Card (
             colors = CardDefaults.cardColors(containerColor = threatColour),
             modifier = Modifier

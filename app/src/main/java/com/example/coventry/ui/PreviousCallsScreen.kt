@@ -57,13 +57,7 @@ fun PastCallsHome(
         //modifier = modifier
     )
 
-
-
-
-
 }
-
-
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -109,7 +103,7 @@ fun CallRecordItem(
             .padding(start = 5.dp, top = 16.dp, end = 5.dp)
             .clickable {
                 viewModel.updateCurrentSelectedCallRecord(callRecord);
-                run { navController.navigate(CoventryScreen.IndividualPastTextScreen.name) }
+                run { navController.navigate(CoventryScreen.IndividualPastCallScreen.name) }
             }
 
     ) {
@@ -125,7 +119,7 @@ fun CallRecordItem(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
 
-                Text("TEST TEXT")
+                Text(callRecord.phoneNumber)
 
                 //Text("From: ${previousText.sender}", fontSize = 24.sp, modifier = Modifier.padding(end = 16.dp))
                 //Text("Message: ${previousText.body}")

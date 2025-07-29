@@ -29,8 +29,10 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-
+    private lateinit var telephonyManager: TelephonyManager
+    private var callStateCallBack: MyCallStateCallBack? = null
     private lateinit var speechRecognizer: SpeechRecognizer
+
     //private lateinit var phoneStateReceiver: PhoneStateReceiver
 
 
@@ -49,12 +51,12 @@ class MainActivity : ComponentActivity() {
         // speech recognition stuff // I FEEL LIKE THIS CODE SHOULD DEFINATELY NOT BE HERE
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
-        /*
-        phoneStateReceiver = PhoneStateReceiver(viewModel)
+
+        val phoneStateReceiver = PhoneStateReceiver(viewModel)
         val filter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(phoneStateReceiver, filter)
 
-         */
+
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)

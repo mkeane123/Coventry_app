@@ -17,20 +17,32 @@ class MyCallStateCallBack(
     private val phoneNumber: String
 ) : TelephonyCallback(), TelephonyCallback.CallStateListener{
     override fun onCallStateChanged(state: Int) {
+        var previousCallState: Int = TelephonyManager.CALL_STATE_IDLE
         when (state) {
+            TelephonyManager.CALL_STATE_IDLE -> {
+                viewModel.setOnCall(false)
+                viewModel.endCallSession(context)
+                viewModel.setPhoneNumber(phoneNumber)
+                Log.d("CallStateListener", "phone number set as $phoneNumber")
+                Log.d("CallStateListener", "Call ended")
+            }
+            /*
             TelephonyManager.CALL_STATE_IDLE -> {
                 liveSpeechRecognizer.stopListening()
                 viewModel.endCallSession(context)
                 Log.d("CALL_STATE", "Call ended or idle")
             }
+
+             */
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 viewModel.startCallSession(phoneNumber)
                 liveSpeechRecognizer.startListening()
-                Log.d("CALL_STATE", "Call started or answered")
+                Log.d("CallStateListener", "Call started or answered")
             }
             TelephonyManager.CALL_STATE_RINGING -> {
-                Log.d("CALL_STATE", "Incoming call ringing")
+                Log.d("CallStateListener", "Incoming call ringing")
             }
         }
+        previousCallState = state
     }
 }

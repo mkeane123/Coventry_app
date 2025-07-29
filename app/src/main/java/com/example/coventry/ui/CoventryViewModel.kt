@@ -55,6 +55,7 @@ class CoventryViewModel(
     // handling call records
     private var callStartTime: Long = 0
     private var callPhoneNumber: String = ""
+    var callPhoneNumberPublic = callPhoneNumber
     private val currentTranscript = StringBuilder()
 
     fun startCallSession(phoneNumber: String){
@@ -73,37 +74,25 @@ class CoventryViewModel(
     }
 
     fun endCallSession(context: Context) {
+        Log.d("CallRecord", "current phone number $callPhoneNumber")
+        val db = AppDatabase.getDatabase(context)
         val endTime = System.currentTimeMillis()
         val callRecord = CallRecord(
             phoneNumber = callPhoneNumber,
             startTime = callStartTime,
             endTime = endTime,
-            transcript = currentTranscript.toString().trim()
+            transcript = "WHAT IS HAPPENING"//currentTranscript.toString().trim() TODO: IT SHOULD BE THIS, CHANGED IT FOR NOW FOR TESTING PURPOSES
         )
 
-        val db = AppDatabase.getDatabase(context)
+
 
         viewModelScope.launch {
             db.callRecordDao().insert(callRecord)
+
             Log.d("CallRecord", "Inserted call record: $callRecord")
+            //db.callRecordDao().clearAll()
         }
     }
-
-    /*
-    fun logAllCallRecords(context: Context) {
-        val db = AppDatabase.getDatabase(context)
-
-        viewModelScope.launch {
-            val records = db.callRecordDao().getAll()
-            records.forEach{
-                Log.d("CallRecord", "ID: ${it.id}, Number: ${it.phoneNumber}, Start: ${it.startTime}, End: ${it.endTime}, Transcript: ${it.transcript}")
-            }
-        }
-    }
-    */
-
-
-
 
     private val _onCall = MutableStateFlow(false)
     val onCall: StateFlow<Boolean> = _onCall
@@ -158,11 +147,6 @@ class CoventryViewModel(
 
         Log.d("Audio", "Ready to extract features from: ${audioFile.absolutePath}")
     }
-
-
-
-
-
 
 
     fun predictLiveTranscript(text: String){
@@ -331,16 +315,6 @@ class CoventryViewModel(
         return file.absolutePath
     }
 
-    // function to load pytorch model
-    /*
-    fun loadModel(context: Context) {
-        if (model == null) {
-            model = Module.load(assetFilePath(context, "deep_lstm_classifier_cpu.pt"))
-        }
-    }
-
-
-     */
 
     private fun loadModelFile(assetManager: AssetManager, assetName: String): File {
         val file = File.createTempFile("model", ".pt") // or ".ptl" if using TorchScript Lite
@@ -579,8 +553,8 @@ class CoventryViewModel(
     val uiState: StateFlow<CoventryUiState> = _uiState//.asStateFlow()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun updateCurrentSelctedPreviousCall(previousCall: PreviousCall) {
-        _uiState.value = uiState.value.copy(currentSelectedPastCall = previousCall)
+    fun updateCurrentSelctedPreviousCall(callRecord: CallRecord) {
+        _uiState.value = uiState.value.copy(currentSelectedCallRecord = callRecord)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
