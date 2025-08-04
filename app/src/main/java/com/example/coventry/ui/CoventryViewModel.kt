@@ -618,7 +618,6 @@ class CoventryViewModel(
     }
 
     fun setFirstLaunchDone() {
-
         viewModelScope.launch { dataStoreManager.setFirstLaunchDone() }
     }
 

@@ -16,8 +16,8 @@ class MyCallStateCallBack(
     private val liveSpeechRecognizer: LiveSpeechRecognizer,
     private val phoneNumber: String
 ) : TelephonyCallback(), TelephonyCallback.CallStateListener{
+    private var previousCallState: Int = TelephonyManager.CALL_STATE_IDLE
     override fun onCallStateChanged(state: Int) {
-        var previousCallState: Int = TelephonyManager.CALL_STATE_IDLE
         when (state) {
             TelephonyManager.CALL_STATE_IDLE -> {
                 viewModel.setOnCall(false)
