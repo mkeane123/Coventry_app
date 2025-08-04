@@ -55,10 +55,7 @@ fun HowToUseAppHomeScreen(
         viewModel = viewModel
         )
 
-
 }
-
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
@@ -71,7 +68,9 @@ fun HowToUseAppScreen(
     val pages = listOf(
         "Receive texts and calls as normal",
         "Check texts in the app to assess if they are a threat",
-        "Monitor calls live in app for real-time scam call detection"
+        "Monitor calls live in app for real-time scam call detection",
+        "All data is stored on your device we don't ever see any of your calls or texts",
+        "Remove permissions at any time in the settings"
     )
 
     //val pagerState = rememberPagerState()

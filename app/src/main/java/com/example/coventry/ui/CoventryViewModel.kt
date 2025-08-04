@@ -1,5 +1,6 @@
 package com.example.coventry.ui
 
+import android.Manifest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coventry.data.DataStoreManager
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -153,6 +155,25 @@ class CoventryViewModel(
         val vocab = getVocab() ?: return
         val tokenized = tokenizeInput(text, vocab)
         predictFromTextIndices(tokenized)
+    }
+
+    fun updatePermissionStatus(granted: Boolean) {
+        _hasPermissions.value = granted
+    }
+
+    fun checkInitialPermissions(context: Context) {
+        val permissions = listOf(
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.RECEIVE_SMS
+        )
+
+        val allGranted = permissions.all{
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        _hasPermissions.value = allGranted
     }
 
 
