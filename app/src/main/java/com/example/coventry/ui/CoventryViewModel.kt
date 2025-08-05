@@ -12,16 +12,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import com.example.coventry.R
 import com.example.coventry.data.local.AppDatabase
 import com.example.coventry.data.model.CallRecord
@@ -206,6 +212,25 @@ class CoventryViewModel(
             mediaPlayer.setOnCompletionListener {
                 it.release()
             }
+        }
+    }
+
+    fun vibrateIfThresholdExceeded(context: Context, value: Float, threshold: Float) {
+        if (value > threshold) {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                vibratorManager.defaultVibrator
+            } else {
+                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val effect = VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE)
+                vibrator.vibrate(effect)
+            } else {
+                vibrator.vibrate(300)
+            }
+
         }
     }
 
@@ -598,7 +623,7 @@ class CoventryViewModel(
     }
 
     fun blockCaller() {
-        //TODO(reason = "Code for blocking a caller")
+        // TODO: implement this, maybe, the code is in indivudual screens just for now so that it works
     }
 
     fun endCall() {

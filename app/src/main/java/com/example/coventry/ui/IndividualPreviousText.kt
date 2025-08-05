@@ -1,5 +1,7 @@
 package com.example.coventry.ui
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
@@ -39,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+
+import android.provider.ContactsContract
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -166,7 +170,6 @@ fun IndividualPreviousTextHome(
                 .padding(16.dp)
                 .height(100.dp),
 
-
             ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -204,7 +207,6 @@ fun IndividualPreviousTextHome(
 
         }
 
-
         Box (      // Report and Block buttons
             modifier = Modifier
                 .padding(start = 10.dp, end = 10.dp)
@@ -220,7 +222,6 @@ fun IndividualPreviousTextHome(
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-
                             onReportButtonClicked.invoke()
                         }
 
@@ -245,7 +246,24 @@ fun IndividualPreviousTextHome(
                 Card (
                     modifier = Modifier
                         .weight(1f)
-                        .clickable { onBlockButtonClicked.invoke() }
+                        .clickable {
+
+                            /*
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = Uri.parse("tel:${previousText.sender}")
+                            }
+                            context.startActivity(intent)
+
+                             */
+
+                            val intent = Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT).apply {
+                                data = Uri.fromParts("tel", "1234567890", null)
+                                putExtra(ContactsContract.Intents.Insert.NAME, "Potential scam")
+                                putExtra(ContactsContract.Intents.Insert.PHONE, "1234567890")
+                            }
+                            context.startActivity(intent)
+
+                        }
                 ) {
                     Box(
                         modifier = Modifier

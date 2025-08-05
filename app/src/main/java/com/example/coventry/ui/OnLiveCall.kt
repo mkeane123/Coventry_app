@@ -162,6 +162,19 @@ fun LiveCallDefaultScreen(
                 var newLabel = ""
                 if (label != null) {
                     if (confidence != null) {
+                        val threshold = 0.75f
+                        viewModel.checkThresholdAndPLaySound(
+                            context = context,
+                            value = confidence,
+                            threshold = threshold
+                        )
+                        // TODO: call function to vibrate phone
+
+                        viewModel.vibrateIfThresholdExceeded(
+                            context = context,
+                            value = confidence,
+                            threshold = threshold
+                        )
 
                         when {
                             (prediction?.confidence ?: 0f) >= 0.5f -> {
@@ -237,7 +250,7 @@ fun LiveCallDefaultScreen(
                     viewModel.saveCallRecord(callRecord)
                      */
                 }
-                             }, // IMPLEMENT LOGIC HERE TO STOP LISTENING TO DEVICE AUDIO
+                             },
                 modifier = Modifier
                     .size(100.dp)
                     .padding(top = 16.dp, end = 16.dp),
