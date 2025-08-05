@@ -71,7 +71,7 @@ fun CallRecordsScreenOneColl(
     val calls by viewModel.allCallRecords.collectAsState(initial = emptyList())
     //val messages by viewModel.allTexts.collectAsState(initial = emptyList())
 
-    //Log.d("CALLS", calls.toString())
+    Log.d("CALLS", calls.toString())
     LazyColumn{
         items(calls) {message ->
             CallRecordItem(

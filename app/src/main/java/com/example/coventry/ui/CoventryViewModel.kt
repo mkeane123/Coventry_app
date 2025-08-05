@@ -17,31 +17,22 @@ import android.content.res.AssetManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
-import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
-import android.telephony.TelephonyManager.CALL_STATE_RINGING
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.datastore.core.IOException
-import androidx.room.Room
 import com.example.coventry.R
 import com.example.coventry.data.local.AppDatabase
 import com.example.coventry.data.model.CallRecord
-import com.example.coventry.data.model.PreviousCall
 import com.example.coventry.data.model.PreviousText
 import com.example.coventry.data.repository.CallRecordRepository
 import com.example.coventry.data.repository.PreviousTextRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import org.pytorch.IValue
 import org.pytorch.Module
 import org.pytorch.Tensor
-import org.vosk.Model
-import org.vosk.android.StorageService
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.StringBuilder
@@ -56,12 +47,14 @@ class CoventryViewModel(
 
     // handling call records
     private var callStartTime: Long = 0
-    private var callPhoneNumber: String = ""
-    var callPhoneNumberPublic = callPhoneNumber
+    private val _callPhoneNumber = MutableStateFlow("")
+    var callPhoneNumber: StateFlow<String> = _callPhoneNumber
+    //private var callPhoneNumber: String = ""
+    //var callPhoneNumberPublic = callPhoneNumber
     private val currentTranscript = StringBuilder()
 
     fun startCallSession(phoneNumber: String){
-        callPhoneNumber = phoneNumber
+        callPhoneNumber = callPhoneNumber
         callStartTime = System.currentTimeMillis()
         currentTranscript.clear()
     }
@@ -76,16 +69,17 @@ class CoventryViewModel(
     }
 
     fun endCallSession(context: Context) {
+        Log.d("EndCallSession", "End call session called")
         Log.d("CallRecord", "current phone number $callPhoneNumber")
         val db = AppDatabase.getDatabase(context)
+        Log.d("DB", "DB Path: ${context.getDatabasePath("call_database").absolutePath}")
         val endTime = System.currentTimeMillis()
         val callRecord = CallRecord(
-            phoneNumber = callPhoneNumber,
+            phoneNumber = callPhoneNumber.value,
             startTime = callStartTime,
             endTime = endTime,
-            transcript = "WHAT IS HAPPENING"//currentTranscript.toString().trim() TODO: IT SHOULD BE THIS, CHANGED IT FOR NOW FOR TESTING PURPOSES
+            transcript = "New tester now changed way of changing phone number"//currentTranscript.toString().trim() TODO: IT SHOULD BE THIS, CHANGED IT FOR NOW FOR TESTING PURPOSES
         )
-
 
 
         viewModelScope.launch {
@@ -93,6 +87,7 @@ class CoventryViewModel(
 
             Log.d("CallRecord", "Inserted call record: $callRecord")
             //db.callRecordDao().clearAll()
+            //Log.d("DB", "Cleared DB")
         }
     }
 
@@ -643,8 +638,8 @@ class CoventryViewModel(
     }
 
     fun setPhoneNumber(incomingNumber: String) {
-        callPhoneNumber = incomingNumber
+        _callPhoneNumber.value = incomingNumber
+        Log.d("SetPhoneNumber", "set number to: ${_callPhoneNumber.value}")
     }
-
 
 }

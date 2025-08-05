@@ -74,12 +74,14 @@ fun HomeScreen(
         } else {
             val listener = object : PhoneStateListener() {
 
-
                 override fun onCallStateChanged(state: Int, phoneNumber: String?) {
+
                     when (state) {
                         TelephonyManager.CALL_STATE_IDLE -> {
+                            Log.d("HomeScreen", "In call state idle, previous state: $previousCallState")
                             if (previousCallState == TelephonyManager.CALL_STATE_OFFHOOK || previousCallState == TelephonyManager.CALL_STATE_RINGING){
                                 viewModel.setOnCall(false)
+                                Log.d("HomeScreen", "end call session called")
                                 viewModel.endCallSession(context)
                                 if (phoneNumber != null){
                                     viewModel.setPhoneNumber(phoneNumber)
@@ -92,16 +94,16 @@ fun HomeScreen(
                                 previousCallState = state
                                 Log.d("HomeScreen", "Phone is idle (no active or recent call)")
                             }
-
-
                         }
+
                         TelephonyManager.CALL_STATE_OFFHOOK -> {
                             viewModel.setOnCall(true)
-                            viewModel.startCallSession(viewModel.callPhoneNumberPublic)
+                            viewModel.startCallSession(viewModel.callPhoneNumber.value)
                             //liveSpeechRecognizer.startListening()
                             Log.d("HomeScreen", "Call started or answered")
                             previousCallState = TelephonyManager.CALL_STATE_OFFHOOK
                         }
+
                         TelephonyManager.CALL_STATE_RINGING -> {
                             viewModel.setOnCall(true)
                             Log.d("HomeScreen", "Incoming call ringing")

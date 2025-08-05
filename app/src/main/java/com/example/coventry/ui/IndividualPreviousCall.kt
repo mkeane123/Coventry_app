@@ -110,12 +110,41 @@ fun IndividualPreviousCallHome(
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
+
+            }
+                var newLabel = ""
+                if (label != null) {
+                    if (confidence != null) {
+                        when {
+                            (prediction?.confidence ?: 0f) >= 0.5f -> {
+                                newLabel = "SCAM"
+                                Text(
+                                    text = "Prediction: $newLabel, Confidence: ${
+                                        String.format(
+                                            "%.2f",
+                                            confidence * 100
+                                        )
+                                    }%",
+                                    fontSize = 25.sp
+                                )
+                            }      // High threat
+                            else -> {
+                                newLabel = "NOT SCAM"
+                                Text(
+                                    text = "Prediction: $newLabel",
+                                    fontSize = 25.sp,
+                                    )
+                            }
+                        }
+                    }
+                    /*
                 Text(
                     text = "Threat level: $label $confidence",
                     fontSize = 25.sp,
                     modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
 
                 )
+                */
                 Text(
                     "Time of Call:\n$formattedTime",
                     fontSize = 25.sp,
