@@ -168,7 +168,6 @@ fun LiveCallDefaultScreen(
                             value = confidence,
                             threshold = threshold
                         )
-                        // TODO: call function to vibrate phone
 
                         viewModel.vibrateIfThresholdExceeded(
                             context = context,
@@ -296,7 +295,8 @@ fun LiveCallDefaultScreen(
                 )
             }
         }
-
+        /// HERE
+        /*
         Box (      // Report and Block buttons
             modifier = Modifier
                 .padding(start = 10.dp, end = 10.dp)
@@ -355,6 +355,7 @@ fun LiveCallDefaultScreen(
                 
             }
         }
+        */
 
     }
 }

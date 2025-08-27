@@ -178,11 +178,13 @@ fun IndividualPreviousTextHome(
                 if (confidence != null) {
                     // play sound if threat was above a certain threshold
                     val threshold = 0.75f
+                    /*
                     viewModel.checkThresholdAndPLaySound(
                         context = context,
                         value = confidence,
                         threshold = threshold
                     )
+                    */
 
                     if (confidence < 0) {
                         Text(
@@ -206,7 +208,7 @@ fun IndividualPreviousTextHome(
             }
 
         }
-
+        /*
         Box (      // Report and Block buttons
             modifier = Modifier
                 .padding(start = 10.dp, end = 10.dp)
@@ -218,6 +220,7 @@ fun IndividualPreviousTextHome(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
+                /*
                 Card (
                     modifier = Modifier
                         .weight(1f)
@@ -226,6 +229,7 @@ fun IndividualPreviousTextHome(
                         }
 
                 ) {
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -239,10 +243,12 @@ fun IndividualPreviousTextHome(
                         )
                     }
 
+
                 }
+                */
 
                 Spacer(modifier = Modifier.width(48.dp))
-
+                /*
                 Card (
                     modifier = Modifier
                         .weight(1f)
@@ -253,13 +259,12 @@ fun IndividualPreviousTextHome(
                                 data = Uri.parse("tel:${previousText.sender}")
                             }
                             context.startActivity(intent)
-
                              */
 
                             val intent = Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT).apply {
-                                data = Uri.fromParts("tel", "1234567890", null)
+                                data = Uri.fromParts("tel", previousText.sender, null)
                                 putExtra(ContactsContract.Intents.Insert.NAME, "Potential scam")
-                                putExtra(ContactsContract.Intents.Insert.PHONE, "1234567890")
+                                putExtra(ContactsContract.Intents.Insert.PHONE, previousText.sender)
                             }
                             context.startActivity(intent)
 
@@ -278,9 +283,11 @@ fun IndividualPreviousTextHome(
                         )
                     }
                 }
+                */
 
             }
         }
+        */
 
     }
 }

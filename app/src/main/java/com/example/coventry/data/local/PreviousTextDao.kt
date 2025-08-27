@@ -14,4 +14,7 @@ interface PreviousTextDao {
 
     @Query("SELECT * FROM texts ORDER BY timestamp DESC")
     fun getAll(): Flow<List<PreviousText>>
+
+    @Query("DELETE FROM call_records")
+    suspend fun clearAll()
 }

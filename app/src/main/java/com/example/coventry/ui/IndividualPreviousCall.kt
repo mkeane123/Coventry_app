@@ -196,12 +196,12 @@ fun IndividualPreviousCallHome(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .height(50.dp)
+                .height(100.dp)
 
         ) {
             Text("")
         }
-
+        /*
         Box (      // Report and Block buttons
             modifier = Modifier
                 .padding(start = 10.dp, end = 10.dp)
@@ -263,6 +263,7 @@ fun IndividualPreviousCallHome(
 
             }
         }
+        */
 
     }
 }

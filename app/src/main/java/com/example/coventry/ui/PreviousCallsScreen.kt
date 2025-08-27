@@ -36,8 +36,10 @@ import com.example.coventry.data.model.CallRecord
 
 import com.example.coventry.data.model.PreviousText
 import com.example.coventry.ui.utils.ContentType
+import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 import java.util.Date
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -120,6 +122,13 @@ fun CallRecordItem(
             ) {
 
                 Text(callRecord.phoneNumber)
+                val startTimeMillis = callRecord.startTime
+
+                val date = Date(startTimeMillis)
+                val formatter = SimpleDateFormat("dd MMMM yyyy HH:mm:ss", Locale.getDefault())
+                val formattedDateTime = formatter.format(date)
+                Text(formattedDateTime)
+
 
                 //Text("From: ${previousText.sender}", fontSize = 24.sp, modifier = Modifier.padding(end = 16.dp))
                 //Text("Message: ${previousText.body}")

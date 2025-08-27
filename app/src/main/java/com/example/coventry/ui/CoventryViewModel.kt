@@ -84,7 +84,7 @@ class CoventryViewModel(
             phoneNumber = callPhoneNumber.value,
             startTime = callStartTime,
             endTime = endTime,
-            transcript = "New tester now changed way of changing phone number"//currentTranscript.toString().trim() TODO: IT SHOULD BE THIS, CHANGED IT FOR NOW FOR TESTING PURPOSES
+            transcript = "Hello? Good afternoon, I’m calling from SecureBank. We’ve noticed suspicious activity on your account. Really? What kind of activity? A withdrawal attempt from abroad. To prevent further issues, I’ll need you to confirm your account number and security details. I’m not comfortable giving that out over the phone. If you don’t, your account may be frozen."//currentTranscript.toString().trim() TODO: IT SHOULD BE THIS, CHANGED IT FOR NOW FOR TESTING PURPOSES
         )
 
 
@@ -95,6 +95,32 @@ class CoventryViewModel(
             //db.callRecordDao().clearAll()
             //Log.d("DB", "Cleared DB")
         }
+    }
+
+    fun clearCallsDB(context: Context) {
+
+        val db = AppDatabase.getDatabase(context)
+        viewModelScope.launch {
+
+            db.callRecordDao().clearAll()
+            Log.d("DB", "Cleared calls DB")
+        }
+
+
+        Log.d("CLEAR_CALLS", "Calls cleared")
+    }
+
+    fun clearTextsDB(context: Context) {
+
+        val db = AppDatabase.getDatabase(context)
+        viewModelScope.launch {
+            db.previousTextDao().clearAll()
+
+            Log.d("DB", "Cleared texts DB")
+        }
+
+
+        Log.d("CLEAR_TEXTS", "Texts cleared")
     }
 
     private val _onCall = MutableStateFlow(false)

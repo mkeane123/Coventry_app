@@ -70,7 +70,7 @@ fun HowToUseAppScreen(
         "Check texts in the app to assess if they are a threat",
         "Monitor calls live in app for real-time scam call detection",
         "All data is stored on your device we don't ever see any of your calls or texts",
-        "Remove permissions at any time in the settings"
+        "Remove permissions or delete your texts and calls saved locally in the app at any time in the settings"
     )
 
     //val pagerState = rememberPagerState()
